@@ -1,0 +1,1 @@
+java -jar wumpus-1.0.jar -g
