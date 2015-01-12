@@ -13,6 +13,7 @@ public class Room {
     private boolean pit;
     private boolean gold;
     private int index;
+    private boolean bumper = false;
     
     
     //in Java, this hides the default constructor..(not using it)
