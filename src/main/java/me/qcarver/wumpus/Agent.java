@@ -25,6 +25,7 @@ public class Agent {
     boolean hasClimbedOut = false;
     Set<Percept> percepts = new HashSet<Percept>();
     Set<Room> visitedRooms = new HashSet<Room>();
+    Bump lastBump = null;
 
     //hiding the default constructor ..we need the environment! 
     protected Agent() {
@@ -51,6 +52,10 @@ public class Agent {
 
     public Orientation getOrientation() {
         return orientation;
+    }
+    
+    public Orientation getLastBumpDirection() {
+        return lastBump.whichWay;
     }
 
     /**
@@ -133,6 +138,7 @@ public class Agent {
                 } catch (Bump bumped) {
                     //only way we get a bump percept is by walking into it
                     percepts.add(Percept.BUMP);
+                    lastBump = bumped;
                 }
                 break;
             case GRAB:

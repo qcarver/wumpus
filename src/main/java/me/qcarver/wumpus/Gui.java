@@ -136,8 +136,12 @@ public class Gui extends PApplet implements Playable {
                     @Override
                     protected void draw() {
                         _this.stroke(255, 0, 0);
+                        _this.strokeWeight(5);
                         _this.noFill();
-                        _this.rect(xOffset, yOffset, width, height);
+                        //_this.rect(xOffset, yOffset, width, height);
+                        _this.line(xOffset, yOffset, xOffset + width, yOffset + height);
+                        _this.line(xOffset, yOffset + height, xOffset + width, yOffset);
+                        //_this.line(xOffset + width, yOffset, -1 * width , -1 * height);
                     }            
         },
         PIT {
@@ -303,6 +307,7 @@ public class Gui extends PApplet implements Playable {
             scale = 1;
             _this.fill(255, 255, 255);
             _this.stroke(0x0);
+            _this.strokeWeight(1);
         }
 
         /**
@@ -399,7 +404,20 @@ public class Gui extends PApplet implements Playable {
             int height = getHeight() / dimension;
             if (percepts.contains(Percept.BUMP)){
                 Contents bump = Contents.BUMP;
-                bump.draw(this, x, y);
+                switch(agent.getLastBumpDirection()){
+                    case UP:
+                        bump.draw(this, x, y - 1);
+                        break;
+                    case RIGHT:
+                        bump.draw(this, x + 1, y);
+                        break;
+                    case LEFT:
+                        bump.draw(this, x - 1, y);
+                        break;
+                    default: //DOWN
+                        bump.draw(this, x, y + 1);
+                        break;
+                }
             }
             if ((percepts.contains(Percept.BREEZE))
                     || (percepts.contains(Percept.STENCH))
