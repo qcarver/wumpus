@@ -61,7 +61,7 @@ public class Text implements Playable {
      */
     public void display(Room playersRoom) {
         int dimension = configuration.getDimension();
-        
+        int index = 0;
         for (Room room : cave.getRooms()) {
             //get the symbol for the room
             System.out.print(
@@ -69,7 +69,7 @@ public class Text implements Playable {
                     getRoomSymbol(room));
 
             //draw row at a time then return
-            if ((room.getIndex() % dimension) == dimension - 1) {
+            if ((index++ % dimension) == dimension - 1) {
                 System.out.print('\n');
             }
         }
@@ -83,19 +83,20 @@ public class Text implements Playable {
      */
     public void display(Room playersRoom, Set<Room> visitedRooms) {
         int dimension = configuration.getDimension();
+        int index = 0;
 
         for (Room room : cave.getRooms()) {
             char symbol = '?';
             if (visitedRooms.contains(room)) {
                 symbol = getRoomSymbol(room);
             }
-            if (room.equals(playersRoom)) {
+            if ((room != null) && (room.equals(playersRoom))) {
                 symbol = 'A';
             }
             System.out.print(symbol);
 
             //draw row at a time then return
-            if ((room.getIndex() % dimension) == dimension - 1) {
+            if ((index++ % dimension) == dimension - 1) {
                 System.out.print('\n');
             }
         }
@@ -108,22 +109,24 @@ public class Text implements Playable {
      */
     private char getRoomSymbol(Room room) {
         char symbol = 'E';
-        //the subtraction gives us unique symbols if more than 1 item in rm
-        if (room.hasGold()) {
-            symbol += 'G' - 'E';
-        }
-        if (room.hasPit()) {
-            symbol += 'P' - 'E';
-        }
-        if (room.hasWumpus()){
-            if (room.getWumpus().isAlive())
-            {         
-                symbol += 'W' - 'E';
+        if (room == null) {
+            symbol = '#';
+        } else {
+            //the subtraction gives us unique symbols if more than 1 item in rm
+            if (room.hasGold()) {
+                symbol += 'G' - 'E';
             }
-             else{
-                symbol += 'w' - 'E';
-            }                  
-        }           
+            if (room.hasPit()) {
+                symbol += 'P' - 'E';
+            }
+            if (room.hasWumpus()) {
+                if (room.getWumpus().isAlive()) {
+                    symbol += 'W' - 'E';
+                } else {
+                    symbol += 'w' - 'E';
+                }
+            }
+        }
         return symbol;
     }
     
@@ -135,7 +138,8 @@ public class Text implements Playable {
     private void configure(Configuration configuration){
         this.configuration = configuration;
         
-        cave = new Cave(configuration.getDimension(),configuration.getPossible());
+        cave = new Cave(configuration.getDimension(),
+                configuration.getPossible(), configuration.getBumpers());
         System.err.println("cave dimension " + configuration.getDimension());
         agent = (configuration.getPlayMode()== Configuration.PlayMode.AUTOMATED)
                 ? new AutomatedAgent(cave, configuration.getArrows())

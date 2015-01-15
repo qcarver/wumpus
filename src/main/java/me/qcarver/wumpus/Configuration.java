@@ -36,6 +36,9 @@ public class Configuration {
     private boolean possible = false;
     private Options options = null;
     private int arrows = 1;
+    private int bumpers = 0;
+    
+    final static int BUMPERS_MAX = 50;
 
     /**
      * returns the mode of play
@@ -83,6 +86,15 @@ public class Configuration {
     }
     
     /**
+     * return the percentage likelihood a room will instantiate as a bumper room
+     * 
+     * @return bumper instantiation percentage
+     */
+    public int getBumpers() {
+        return bumpers;
+    }
+    
+    /**
      * returns the number of arrows to start the game with
      * 
      * @return number of arrows 
@@ -115,6 +127,8 @@ public class Configuration {
         options.addOption("a", "automated", false, "automated agent");
         options.addOption("r", "arrows", true, "number of arrows in quiver, "
                 + "default is " + arrows);
+        options.addOption("b", "bumpers", true, "% chance a room is a "
+                + "bumper room, default is " + bumpers);
         options.addOption("g", "graphic", false, "graphic mode, default is "
                 + ((uiMode == UiMode.TEXT)?"false":"true"));
         options.addOption("d", "dimension", true, "the x & y dimensions of "
@@ -156,6 +170,18 @@ public class Configuration {
         } catch (NumberFormatException e) {
             System.err.println("Couln't parse arrows parameter, going "+
                     "with default " + arrows);
+        }
+        try {
+            bumpers = (cmd.hasOption("b") ? Integer.parseInt(
+                    cmd.getOptionValue("bumpers")) : bumpers);
+            if (bumpers > BUMPERS_MAX){
+                System.err.println("Bumpers value to high, "
+                        +"try between 0 and " + BUMPERS_MAX);
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Couln't parse bumpers parameter, going "+
+                    "with default " + bumpers);
         }
         possible = (cmd.hasOption("p")? true:false);
     }

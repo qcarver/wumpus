@@ -132,6 +132,14 @@ public class Gui extends PApplet implements Playable {
                         _this.rect(xOffset, yOffset, width, height);
                     }
                 },
+        BUMP {
+                    @Override
+                    protected void draw() {
+                        _this.stroke(255, 0, 0);
+                        _this.noFill();
+                        _this.rect(xOffset, yOffset, width, height);
+                    }            
+        },
         PIT {
 
                     @Override
@@ -384,17 +392,22 @@ public class Gui extends PApplet implements Playable {
         }
 
         if (!percepts.isEmpty()) {
+            int dimension = configuration.getDimension();
+            int x = (currRoom.getIndex() % dimension);
+            int y = (currRoom.getIndex() / dimension);
+            int width = getWidth() / dimension;
+            int height = getHeight() / dimension;
+            if (percepts.contains(Percept.BUMP)){
+                Contents bump = Contents.BUMP;
+                bump.draw(this, x, y);
+            }
             if ((percepts.contains(Percept.BREEZE))
                     || (percepts.contains(Percept.STENCH))
                     || (percepts.contains(Percept.SCREAM))) {
 
-                int dimension = configuration.getDimension();
-                int x = (currRoom.getIndex() % dimension);
-                int y = (currRoom.getIndex() / dimension);
-                int width = getWidth() / dimension;
-                int height = getHeight() / dimension;
 
-                //can we paint the though bubble to the right
+
+                //can we paint the thought bubble to the right
                 if (cave.canMove(currRoom, Orientation.UP)) {
                     y--;
                     if (cave.canMove(currRoom, Orientation.RIGHT)) {
@@ -503,6 +516,7 @@ public class Gui extends PApplet implements Playable {
         stroke(0x0);
 
         for (Room room : cave.getRooms()) {
+            if (room == null) continue;
             Deque<Contents> contents = new ArrayDeque<Contents>();
             if (visitedRooms.contains(room)) {
                 contents.add(Contents.NOTHING);
@@ -593,7 +607,7 @@ public class Gui extends PApplet implements Playable {
     public void play(Configuration configuration) {
         this.configuration = configuration;
 
-        cave = new Cave(configuration.getDimension(),configuration.getPossible());
+        cave = new Cave(configuration.getDimension(),configuration.getPossible(),configuration.getBumpers());
         agent = (configuration.getPlayMode() == Configuration.PlayMode.AUTOMATED)
                 ? new AutomatedAgent(cave, configuration.getArrows())
                 : new Agent(cave, configuration.getArrows());

@@ -37,6 +37,10 @@ public class Cave {
      * Is there a guaranteed path to getting the gold?
      */
     private boolean possible = false;
+    /**
+     * Percentage likelihood that a room will instantiate as a bumper room
+     */
+    private int bumper;
 
     /**
      * the default cave constructor
@@ -60,11 +64,22 @@ public class Cave {
      * @param possible is there a guaranteed path to getting the gold?
      */
     public Cave(int dimension, boolean possible){
+        this(dimension, possible, 0);
+    }
+    
+    /**
+     * constructs a new cave with parameters passed
+     * @param dimension the vertical and horizontal dimension of the cave
+     * @param possible is there a guaranteed path to getting the gold?
+     * @param bumpers the % likelihood that a room will instantiate as a bumper
+     */
+    public Cave(int dimension, boolean possible, int bumper){
         //the grid will be square so we need dimension * dimension rooms
         this.dimension = dimension;
         this.possible = possible;
+        this.bumper = bumper;
         do{
-            init(dimension);
+            init(dimension, bumper);
         }while(!meetsExpectedPossibility());
     }
     
@@ -76,7 +91,8 @@ public class Cave {
         //make a set of rooms that are just pits
             Set<Room> pitlessRooms = new HashSet<Room>();
             for (Room room : rooms){
-                if (!room.hasPit()) pitlessRooms.add(room);
+                if ((room != null) && (!room.hasPit()))
+                    pitlessRooms.add(room);
             }
         return pitlessRooms;
     }
@@ -112,7 +128,7 @@ public class Cave {
         return rooms;
     }
 
-    protected void init(int dimension) {
+    protected void init(int dimension, int bumper) {
         //as init may be called multiple times, clear member vars each time
         rooms = new ArrayList<Room>();
         this.wumpusRoom = null;
@@ -124,6 +140,7 @@ public class Cave {
         int goldRoom = 0;
         int entryRoom = dimension * dimension - dimension;
         boolean hasPit = false;
+        boolean hasBumper = false;
         
         //randomly pick a wumpusRoom which is not the entryRoom
         do{
@@ -134,7 +151,15 @@ public class Cave {
          goldRoom = randomGenerator.nextInt(dimension * dimension - 1);
         } while (goldRoom == entryRoom);
 
-        for (int roomIndex = 0; roomIndex < dimension * dimension; roomIndex++) {
+        for (int roomIndex = 0; roomIndex < dimension * dimension; roomIndex++) {         
+            //for these rooms there is 'bumper' % chance the room is a bumper
+            if (    (bumper != 0) 
+                    && (roomIndex != goldRoom) 
+                    && (roomIndex != wumpusRoom) 
+                    && (randomGenerator.nextInt(100)<bumper)){
+                rooms.add(null);
+                continue;
+            }
             //for most rooms theres a 20% chance, the room has a pit 
             hasPit = (randomGenerator.nextInt(5) == 3) ? true : false;
  
@@ -170,10 +195,12 @@ public class Cave {
         
         try {
             newRoom = rooms.get(getIndexOfNextRoom(room, steppingToward));
-
+            if (newRoom == null){
+                throw new Bump(steppingToward);
+            }
         } catch (IndexOutOfBoundsException e) {
             newRoom = room;
-            throw new Bump();
+            throw new Bump(steppingToward);
         }
         return newRoom;
     }

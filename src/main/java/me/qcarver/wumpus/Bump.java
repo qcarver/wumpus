@@ -9,11 +9,17 @@ package me.qcarver.wumpus;
  * @author Quinn
  */
 public class Bump extends Exception {
+    
+    Orientation whichWay;
 
     /**
      * Creates a new instance of <code>eBump</code> without detail message.
      */
-    public Bump() {
+    private Bump() {
+    }
+    
+    public Bump(Orientation whichWay){
+        this.whichWay = whichWay;
     }
 
     /**
@@ -22,5 +28,9 @@ public class Bump extends Exception {
      */
     public Bump(String msg) {
         super(msg);
+    }
+    
+    public Orientation getWhichWay(){
+        return whichWay;
     }
 }
