@@ -138,10 +138,8 @@ public class Gui extends PApplet implements Playable {
                         _this.stroke(255, 0, 0);
                         _this.strokeWeight(5);
                         _this.noFill();
-                        //_this.rect(xOffset, yOffset, width, height);
                         _this.line(xOffset, yOffset, xOffset + width, yOffset + height);
                         _this.line(xOffset, yOffset + height, xOffset + width, yOffset);
-                        //_this.line(xOffset + width, yOffset, -1 * width , -1 * height);
                     }            
         },
         PIT {
@@ -567,10 +565,6 @@ public class Gui extends PApplet implements Playable {
         }
     }
 
-    public void display(Room currRoom) {
-        //TODO:        
-    }
-
     /**
      * This is a utility function which returns an enum for the contents of a
      * room
@@ -610,10 +604,6 @@ public class Gui extends PApplet implements Playable {
             text(agent.getScore(), getWidth() / 8, getHeight() / 2 + getHeight() / 13);  // STEP 6 Display Text
         }
 
-    }
-
-    public void showPercepts(Set<Percept> percepts) {
-        //TODO:        
     }
 
     /**
