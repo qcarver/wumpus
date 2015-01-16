@@ -43,7 +43,7 @@ public class DijkstraPathTest extends TestCase {
         Cave impossibleCave = new Cave() {
             //make a simple cave with a pits surrounding gold in top right
             @Override
-            protected void init(int dimension) {
+            protected void init(int dimension, int bumpers) {
                 rooms = new ArrayList<Room>();
                 for (int roomIndex = 0; roomIndex < dimension * dimension; roomIndex++) {
                     //make a room with three possible contents: wumpus, pit, gold

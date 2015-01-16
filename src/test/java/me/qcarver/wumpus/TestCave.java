@@ -13,7 +13,7 @@ import java.util.Random;
 public class TestCave extends Cave {
     //override init function to make a safe cave
     @Override
-    protected void init(int dimension) {
+    protected void init(int dimension, int bumpers) {
         //The next 3 lines pick a random room in the cave for gold & wumpus
         Random randomGenerator = new Random();
         int wumpusRoom = 0;
