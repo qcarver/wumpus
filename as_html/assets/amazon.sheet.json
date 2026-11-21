@@ -1,0 +1,222 @@
+{
+  "schema": "amazon-sprite-sheet-catalog/v1",
+  "source": {
+    "file": "amazon.gif",
+    "size_px": [
+      2578,
+      6403
+    ],
+    "boundary_rule": "A region boundary is a connected component of identical pale-yellow pixels (#FCE4A4). Sprite patch boxes are the non-yellow regions enclosed by those boundaries.",
+    "coordinates": "[x, y, width, height] in source pixels, origin at upper-left; cells are one-based [x, y] within a patch."
+  },
+  "excluded_regions": [
+    {
+      "name": "advertisement",
+      "rect_px": [
+        180,
+        2790,
+        396,
+        2943
+      ],
+      "reason": "Text advertisement, not a sprite patch."
+    }
+  ],
+  "patches": [
+    {
+      "id": 1,
+      "rect_px": [
+        0,
+        13,
+        1216,
+        1279
+      ],
+      "given_reference_rect_px": [
+        1,
+        4,
+        1216,
+        1292
+      ]
+    },
+    {
+      "id": 2,
+      "rect_px": [
+        1217,
+        0,
+        608,
+        1324
+      ]
+    },
+    {
+      "id": 3,
+      "rect_px": [
+        1826,
+        0,
+        640,
+        1324
+      ]
+    },
+    {
+      "id": 4,
+      "rect_px": [
+        0,
+        1325,
+        624,
+        1324
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Special Cast",
+      "action": "shooting",
+      "rect_px": [
+        625,
+        1330,
+        1900,
+        1767
+      ]
+    },
+    {
+      "id": 6,
+      "rect_px": [
+        0,
+        3098,
+        704,
+        1324
+      ]
+    },
+    {
+      "id": 7,
+      "rect_px": [
+        705,
+        3098,
+        1416,
+        1612
+      ]
+    },
+    {
+      "id": 8,
+      "rect_px": [
+        2122,
+        3098,
+        456,
+        1500
+      ]
+    },
+    {
+      "id": 9,
+      "rect_px": [
+        0,
+        4711,
+        1190,
+        1692
+      ]
+    },
+    {
+      "id": 10,
+      "rect_px": [
+        1191,
+        4711,
+        1089,
+        1388
+      ]
+    }
+  ],
+  "sequence_format": {
+    "patch": 1,
+    "cells": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "description": "Ordered sequence of source cells; patch-specific grids and cell spacing are documented separately when identified.",
+    "animation_playback": "Standing rows sweep forward, then backward; no read_order field is needed.",
+    "unresolved": "Walking rows are recorded without ammo classification pending clarification."
+  },
+  "groups": {
+    "NE": {
+      "idle": {
+        "standing": {
+          "ammo": [{ "patch": 1, "line": 11, "cells": [[1,11],[2,11],[3,11],[4,11],[5,11],[6,11],[7,11],[8,11],[9,11],[10,11],[11,11],[12,11],[13,11],[14,11],[15,11],[16,11]] }],
+          "sans_ammo": [{ "patch": 1, "line": 12, "cells": [[1,12],[2,12],[3,12],[4,12],[5,12],[6,12],[7,12],[8,12],[9,12],[10,12],[11,12],[12,12],[13,12],[14,12],[15,12],[16,12]] }]
+        },
+        "walking": [{ "patch": 2, "line": 7, "cells": [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7]] }],
+        "shooting": [{ "patch": 5, "line": 12, "cells": [[1,12],[2,12],[3,12],[4,12],[5,12],[6,12],[7,12],[8,12],[9,12],[10,12],[11,12],[12,12],[13,12],[14,12],[15,12],[16,12],[17,12],[18,12],[19,12],[20,12],[21,12],[22,12],[23,12],[24,12],[25,12]] }],
+        "running": [],
+        "special": []
+      },
+      "ccw_rotation_animation": {
+        "read_order": "fwd",
+        "frames": []
+      },
+      "cw_rotation_animation": {
+        "read_order": "fwd",
+        "frames": []
+      }
+    },
+    "SE": {
+      "idle": {
+        "standing": {
+          "ammo": [{ "patch": 1, "line": 15, "cells": [[1,15],[2,15],[3,15],[4,15],[5,15],[6,15],[7,15],[8,15],[9,15],[10,15],[11,15],[12,15],[13,15],[14,15],[15,15],[16,15]] }],
+          "sans_ammo": [{ "patch": 1, "line": 16, "cells": [[1,16],[2,16],[3,16],[4,16],[5,16],[6,16],[7,16],[8,16],[9,16],[10,16],[11,16],[12,16],[13,16],[14,16],[15,16],[16,16]] }]
+        },
+        "walking": [],
+        "shooting": [{ "patch": 5, "line": 16, "cells": [[1,16],[2,16],[3,16],[4,16],[5,16],[6,16],[7,16],[8,16],[9,16],[10,16],[11,16],[12,16],[13,16],[14,16],[15,16],[16,16],[17,16],[18,16],[19,16],[20,16],[21,16],[22,16],[23,16],[24,16],[25,16]] }],
+        "running": [],
+        "special": []
+      },
+      "ccw_rotation_animation": {
+        "read_order": "fwd",
+        "frames": []
+      },
+      "cw_rotation_animation": {
+        "read_order": "fwd",
+        "frames": []
+      }
+    },
+    "SW": {
+      "idle": {
+        "standing": {
+          "ammo": [{ "patch": 1, "line": 3, "cells": [[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],[12,3],[13,3],[14,3],[15,3],[16,3]] }],
+          "sans_ammo": [{ "patch": 1, "line": 4, "cells": [[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],[15,4],[16,4]] }]
+        },
+        "walking": [{ "patch": 2, "line": 3, "cells": [[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3]] }, { "patch": 2, "line": 16, "cells": [[1,16],[2,16],[3,16],[4,16],[5,16],[6,16],[7,16],[8,16]] }],
+        "shooting": [{ "patch": 5, "line": 4, "cells": [[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],[15,4],[16,4],[17,4],[18,4],[19,4],[20,4],[21,4],[22,4],[23,4],[24,4],[25,4]] }],
+        "running": [],
+        "special": []
+      },
+      "ccw_rotation_animation": {
+        "read_order": "fwd",
+        "frames": []
+      },
+      "cw_rotation_animation": {
+        "read_order": "fwd",
+        "frames": []
+      }
+    },
+    "NW": {
+      "idle": {
+        "standing": {
+          "ammo": [{ "patch": 1, "line": 7, "cells": [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[12,7],[13,7],[14,7],[15,7],[16,7]] }],
+          "sans_ammo": [{ "patch": 1, "line": 8, "cells": [[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8],[16,8]] }]
+        },
+        "walking": [{ "patch": 2, "line": 12, "cells": [[1,12],[2,12],[3,12],[4,12],[5,12],[6,12],[7,12],[8,12]] }],
+        "shooting": [{ "patch": 5, "line": 8, "cells": [[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8],[16,8],[17,8],[18,8],[19,8],[20,8],[21,8],[22,8],[23,8],[24,8],[25,8]] }],
+        "running": [],
+        "special": []
+      },
+      "ccw_rotation_animation": {
+        "read_order": "fwd",
+        "frames": []
+      },
+      "cw_rotation_animation": {
+        "read_order": "fwd",
+        "frames": []
+      }
+    }
+  }
+}

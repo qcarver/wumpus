@@ -141,7 +141,7 @@ Stench behavior after the Wumpus dies must be defined once in the engine and mus
 
 ### R-GAME-006 — Movement and orientation
 
-The agent must begin at the entrance facing right. Turning changes orientation by 90 degrees. Forward movement advances one room or produces a bump without changing rooms.
+The agent must begin at the entrance facing the game’s rightward diagonal bearing. The four bearings are NorthEast, SouthEast, SouthWest, and NorthWest; turns change facing by 90 degrees around the diamond grid. Forward movement advances one room or produces a bump without changing rooms. The UI should use these diagonal names rather than cardinal labels or arrow bubbles.
 
 ### R-GAME-007 — Arrow behavior
 
@@ -255,7 +255,9 @@ The pipeline must identify and remove sheet backgrounds, labels, separators, cre
 
 ### R-ART-006 — Browser-ready atlases
 
-Selected frames must be cropped, normalized around consistent foot/ground anchors, packed into optimized browser atlases, and accompanied by atlas metadata. Source sheets must not be shipped directly as runtime textures.
+Selected frames must be cropped, normalized around consistent foot/ground anchors, packed into compact browser runtime assets, and accompanied by source-to-runtime metadata. Source sheets must not be loaded as runtime textures. Detect each patch’s own bounds, cell spacing, and separators; do not assume uniform cross-sheet grids. Convert the Amazon sheet’s `#AAAAAA` keyed background to alpha before finding its thin horizontal separators. Preserve transparent top/bottom padding consistently across strips and inspect for neighboring-row wrap.
+
+The Amazon hero’s last non-keyed foot pixel must align with the diamond room’s center crosshair. The hero is taller than its floor diamond and must not be clipped to the diamond silhouette. Clip the floor graphic only. Layer room art bottom-to-top as floor, stairs, gold/other floor artifacts, hero, then monster.
 
 ### R-ART-007 — Player animations
 
@@ -267,6 +269,8 @@ The Amazon-derived player must support, at minimum:
 - bow attack/shoot;
 - hit/death presentation if suitable frames exist; and
 - grab/climb presentation using the closest suitable sequence or a clearly documented fallback.
+
+Direction changes should preserve animation phase when corresponding frames across facing rows represent the same moment. Sequences sweep forward and reverse at their endpoints. Track ammunition-specific rows separately where the sheet supports them; leave uncertain mappings unassigned until confirmed. See `as_html/assets/amazon.sheet.json` and the project-local `.agents/skills/character-sheet-runtime/SKILL.md` for current discoveries and workflow.
 
 ### R-ART-008 — Wumpus animations
 

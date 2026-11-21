@@ -15,7 +15,8 @@
       --gold: #efbf43;
       --blood: #c44036;
       --moss: #6e9a65;
-      --cell: clamp(62px, 14vw, 126px);
+      --tile-w: clamp(96px, 14vw, 160px);
+      --tile-h: clamp(53px, 7.7vw, 88px);
     }
 
     * { box-sizing: border-box; }
@@ -93,44 +94,63 @@
       display: grid;
       justify-content: center;
       overflow: auto;
-      padding: 9px;
-      background: #080a0b;
+      min-height: 420px;
+      align-items: start;
+      padding: 32px 18px 58px;
+      background:
+        radial-gradient(ellipse at 50% 55%, #252b28 0, #101313 42%, #050606 78%),
+        #080a0b;
       border: 1px solid #4c493e;
       box-shadow: 0 18px 70px #000a, inset 0 0 45px #000;
     }
 
     #board {
       display: grid;
-      gap: 3px;
+      gap: 0;
       width: max-content;
-      background: #050606;
+      height: max-content;
+      background: transparent;
+      filter: drop-shadow(0 18px 18px #000c);
     }
 
     .cell {
       position: relative;
-      width: var(--cell);
-      aspect-ratio: 1;
+      width: var(--tile-w);
+      height: var(--tile-h);
       padding: 0;
-      overflow: hidden;
-      border: 1px solid #3c403d;
-      background: #242826 url("assets/floor-tile.png") center/100% 100% no-repeat;
+      overflow: visible;
+      border: 0;
+      background: transparent;
       cursor: pointer;
       isolation: isolate;
+      margin: 0;
     }
-    .cell:hover { border-color: #b99e55; }
+    .cell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      background: #242826 url("assets/floor.p03.c01_01.rt.gif") center/100% 100% no-repeat;
+      z-index: 0;
+    }
+    .cell.has-agent { z-index: 100 !important; }
+    .cell.has-monster { z-index: 110 !important; }
+    .cell:hover { filter: brightness(1.22) drop-shadow(0 0 8px #d5b65a88); z-index: 100 !important; }
     .cell.wall {
       cursor: not-allowed;
+    }
+    .cell.wall::before {
       background:
         linear-gradient(135deg, transparent 46%, #0b0c0c 47% 53%, transparent 54%),
         linear-gradient(45deg, transparent 46%, #0b0c0c 47% 53%, transparent 54%),
         repeating-linear-gradient(0deg, #2d3030 0 11px, #1b1d1d 12px 14px);
-      border-color: #111;
+      filter: saturate(.4) brightness(.7);
     }
     .cell.entry::after {
       content: "EXIT";
       position: absolute;
-      right: 3px;
-      bottom: 2px;
+      right: 25%;
+      bottom: 13%;
       z-index: 5;
       color: #cfbd8d;
       font: 700 clamp(.42rem, 1vw, .65rem) system-ui;
@@ -138,6 +158,7 @@
     }
     .fog {
       position: absolute; inset: 0; z-index: 8;
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
       background:
         radial-gradient(circle at 45% 40%, #20272acb 0 12%, #0b0e10f3 70%),
         repeating-linear-gradient(135deg, transparent 0 8px, #ffffff05 9px 10px);
@@ -145,34 +166,31 @@
     }
     .seen .fog, .wall .fog { opacity: 0; pointer-events: none; }
 
-    .entity { position: absolute; z-index: 4; inset: 8% 9% 6%; display: grid; place-items: center; pointer-events: none; }
+    .entity { position: absolute; z-index: 4; inset: 5% 18% 4%; display: grid; place-items: center; pointer-events: none; }
     .entity img { max-width: 100%; max-height: 100%; image-rendering: pixelated; filter: drop-shadow(0 5px 4px #000c); }
     .agent { z-index: 6; }
-    .agent img { height: 88%; transform-origin: 50% 70%; animation: breathe 1.6s ease-in-out infinite; }
-    .agent.left img { transform: scaleX(-1); }
-    .agent::after {
+    .agent { inset: 0; animation: breathe 1.6s ease-in-out infinite; }
+    .amazon-sprite {
       position: absolute;
-      top: 1px;
-      right: 2px;
-      width: 1.35em;
-      height: 1.35em;
-      display: grid;
-      place-items: center;
-      border: 1px solid #d7bf7c;
-      border-radius: 50%;
-      color: #fff4c9;
-      background: #080a0bd9;
-      font: 700 .85rem/1 system-ui;
-      filter: drop-shadow(0 1px 2px #000);
+      left: 50%;
+      bottom: calc(50% + 2px);
+      display: block;
+      width: min(100%, 76px);
+      aspect-ratio: 76 / 72;
+      background: url("assets/amazon.p01.c01_01.rt.gif") center / contain no-repeat;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 5px 4px #000c);
+      transform: translateX(-50%);
+      transform-origin: 50% 100%;
     }
-    .agent.up::after { content: "↑"; }
-    .agent.right::after { content: "→"; }
-    .agent.down::after { content: "↓"; }
-    .agent.left::after { content: "←"; }
-    .agent.bump img { animation: bump .22s ease-out 2; }
-    .wumpus img { width: 90%; }
-    .gold { font-size: clamp(1.6rem, 5vw, 3.2rem); filter: drop-shadow(0 0 10px #ffc83b); }
-    .pit { width: 78%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #000 20%, #180e0c 56%, #5f3b2b 70%, transparent 73%); box-shadow: inset 0 0 18px #000; }
+    .agent.bump .amazon-sprite { animation: bump .22s ease-out 2; }
+    .wumpus { z-index: 7; }
+    .wumpus img { width: 76%; }
+    .stairs { z-index: 2; inset: 3% 10% 2%; }
+    .gold, .pit, .artifact { z-index: 3; }
+    .stairs img { width: 100%; height: 100%; object-fit: fill; }
+    .gold { font-size: clamp(1.1rem, 3.5vw, 2.2rem); filter: drop-shadow(0 0 10px #ffc83b); }
+    .pit { width: 56%; aspect-ratio: 2 / 1; border-radius: 50%; background: radial-gradient(ellipse, #000 20%, #180e0c 56%, #5f3b2b 70%, transparent 73%); box-shadow: inset 0 0 18px #000; }
     .arrow-shot { position: absolute; z-index: 9; inset: 46% 8%; height: 3px; background: #e7d2a1; transform-origin: left; animation: shoot .38s ease-in forwards; }
 
     .side { display: grid; gap: 12px; }
@@ -212,7 +230,7 @@
       .build { white-space: normal; text-align: right; }
       .side { grid-template-columns: 1fr; }
       .side .wide { grid-column: auto; }
-      :root { --cell: clamp(58px, 22vw, 96px); }
+      :root { --tile-w: clamp(88px, 27vw, 112px); --tile-h: clamp(48px, 14.85vw, 62px); }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
@@ -261,9 +279,9 @@
             <button class="action" data-action="left">↶ Turn left<small>← / A</small></button>
             <button class="action" data-action="forward">↑ Forward<small>↑ / W</small></button>
             <button class="action" data-action="right">↷ Turn right<small>→ / D</small></button>
-            <button class="action" data-action="shoot">➶ Shoot<small>S</small></button>
-            <button class="action" data-action="grab">◆ Grab<small>G</small></button>
-            <button class="action" data-action="climb">⇧ Climb<small>C</small></button>
+            <button class="action" data-action="shoot">➶ Shoot<small>S / ⇧ Space</small></button>
+            <button class="action" data-action="grab">◆ Grab<small>G / Enter</small></button>
+            <button class="action" data-action="climb">⇧ Climb<small>C / Enter</small></button>
           </div>
         </section>
         <section class="card wide">
@@ -271,7 +289,7 @@
           <ol id="log"></ol>
         </section>
         <section class="card help wide">
-          Click an adjacent room to turn and step. Keyboard: <kbd>W</kbd> forward, <kbd>A</kbd>/<kbd>D</kbd> turn, <kbd>S</kbd> shoot, <kbd>G</kbd> grab, <kbd>C</kbd> climb, <kbd>N</kbd> new cave.
+          Click an adjacent room to turn and step. Keyboard: <kbd>A</kbd>/<kbd>←</kbd> turn left, <kbd>W</kbd>/<kbd>↑</kbd> forward, <kbd>D</kbd>/<kbd>→</kbd> turn right, <kbd>S</kbd>/<kbd>⇧ Space</kbd> shoot, and <kbd>Enter</kbd> grab or climb contextually. <kbd>N</kbd> starts a new cave.
         </section>
       </aside>
     </main>
@@ -282,6 +300,7 @@
     "use strict";
 
     const DIRS = ["up", "right", "down", "left"];
+    const FACING_NAMES = { up: "NorthEast", right: "SouthEast", down: "SouthWest", left: "NorthWest" };
     const DELTA = { up: [-1, 0], right: [0, 1], down: [1, 0], left: [0, -1] };
     const board = document.querySelector("#board");
     const form = document.querySelector("#config");
@@ -294,6 +313,8 @@
 
     let game;
     let locked = false;
+    let heroFrame = 0;
+    let heroFrameStep = 1;
 
     function hashSeed(text) {
       let h = 2166136261 >>> 0;
@@ -337,6 +358,8 @@
         const rng = makeRng(config.seed + ":" + attempt);
         const count = config.n * config.n;
         const entry = count - config.n;
+        // The stairs occupy the entry room. Gold is selected only from this
+        // entry-free pool, making stairs and gold mutually exclusive.
         const candidates = Array.from({length: count}, (_, i) => i).filter(i => i !== entry);
         const take = () => candidates.splice(Math.floor(rng() * candidates.length), 1)[0];
         const wumpus = take(), gold = take();
@@ -369,6 +392,8 @@
           message: "You enter the cave."
         };
         render();
+        heroFrame = 0;
+        heroFrameStep = 1;
       } catch (error) {
         ui.message.textContent = error.message;
       }
@@ -395,7 +420,7 @@
     function turn(step) {
       const at = DIRS.indexOf(game.facing);
       game.facing = DIRS[(at + step + 4) % 4];
-      note(`Turned ${step < 0 ? "left" : "right"}.`);
+      note(`Facing ${FACING_NAMES[game.facing]}.`);
     }
 
     function act(action) {
@@ -470,15 +495,27 @@
       if (actions.length) setTimeout(() => runSequence(actions), 190);
     }
 
+    function contextualAction() {
+      if (!game || game.ended || locked) return;
+      if (game.position === game.cave.gold && !game.gold) act("grab");
+      else if (game.position === game.cave.entry) act("climb");
+      else act("grab");
+    }
+
     function render() {
       const {cave} = game;
-      board.style.gridTemplateColumns = `repeat(${cave.n}, var(--cell))`;
+      board.style.gridTemplateColumns = `repeat(${cave.n * 2}, calc(var(--tile-w) / 2))`;
+      board.style.gridTemplateRows = `repeat(${cave.n * 2}, calc(var(--tile-h) / 2))`;
       board.replaceChildren();
       const reveal = game.ended;
       for (let i = 0; i < cave.n * cave.n; i++) {
+        const row = Math.floor(i / cave.n), col = i % cave.n;
         const cell = document.createElement("button");
         cell.type = "button";
         cell.className = "cell";
+        cell.style.gridColumn = `${col - row + cave.n} / span 2`;
+        cell.style.gridRow = `${row + col + 1} / span 2`;
+        cell.style.zIndex = String(row + col + 1);
         cell.setAttribute("role", "gridcell");
         const seen = reveal || game.visited.has(i);
         if (seen) cell.classList.add("seen");
@@ -487,19 +524,36 @@
         cell.setAttribute("aria-label", cave.blocked.has(i) ? `Wall at room ${i + 1}` : `${seen ? "Explored" : "Unknown"} room ${i + 1}`);
 
         if (seen && !cave.blocked.has(i)) {
+          if (i === cave.entry) {
+            const stairs = entity("stairs");
+            const img = new Image(); img.src = "assets/floor.p01.c03_03.rt.gif"; img.alt = "";
+            stairs.append(img); cell.append(stairs);
+          }
           if (cave.pits.has(i)) cell.append(entity("pit"));
           if (i === cave.gold && !game.gold) cell.append(entity("gold", "◆"));
           if (i === cave.wumpus) {
+            cell.classList.add("has-monster");
             const w = entity("wumpus");
             const img = new Image();
-            img.src = game.wumpusAlive ? "assets/wumpus-alive.png" : "assets/wumpus-dead.png";
+            img.src = game.wumpusAlive ? "assets/wumpus.p05.c01_01.rt.gif" : "assets/wumpus.p03.c01_01.rt.gif";
             img.alt = ""; w.append(img); cell.append(w);
           }
         }
         if (i === game.position && game.alive && !game.ended) {
+          cell.classList.add("has-agent");
           const agent = entity(`agent ${game.facing}`);
-          const img = new Image(); img.src = "assets/amazon-idle.png"; img.alt = "";
-          agent.append(img); cell.append(agent);
+          const sprite = document.createElement("span"); sprite.className = "amazon-sprite";
+          const standingRows = {
+            up: game.arrows ? 11 : 12,
+            right: game.arrows ? 15 : 16,
+            down: game.arrows ? 3 : 4,
+            left: game.arrows ? 7 : 8
+          };
+          sprite.style.backgroundImage = `url("assets/amazon.p01.line${String(standingRows[game.facing]).padStart(2, "0")}.rt.png")`;
+          sprite.style.backgroundSize = "1600% 100%";
+          sprite.style.backgroundRepeat = "no-repeat";
+          sprite.style.backgroundPosition = `${heroFrame / 15 * 100}% 0`;
+          agent.append(sprite); cell.append(agent);
         }
         const fog = document.createElement("span"); fog.className = "fog"; cell.append(fog);
         if (!cave.blocked.has(i)) cell.addEventListener("click", () => moveToward(i));
@@ -508,7 +562,7 @@
 
       ui.score.textContent = game.score;
       ui.arrows.textContent = game.arrows;
-      ui.facing.textContent = game.facing[0].toUpperCase() + game.facing.slice(1);
+      ui.facing.textContent = FACING_NAMES[game.facing];
       ui.gold.textContent = game.gold ? "Yes" : "No";
       ui.message.textContent = game.message;
       ui.percepts.replaceChildren();
@@ -529,11 +583,21 @@
     }
 
     form.addEventListener("submit", event => { event.preventDefault(); newGame(); });
+    setInterval(() => {
+      if (!game || !game.alive || game.ended) return;
+      heroFrame += heroFrameStep;
+      if (heroFrame >= 15) { heroFrame = 15; heroFrameStep = -1; }
+      else if (heroFrame <= 0) { heroFrame = 0; heroFrameStep = 1; }
+      const sprite = document.querySelector(".agent .amazon-sprite");
+      if (sprite) sprite.style.backgroundPosition = `${heroFrame / 15 * 100}% 0`;
+    }, 110);
     document.querySelectorAll("[data-action]").forEach(button => button.addEventListener("click", () => act(button.dataset.action)));
     addEventListener("keydown", event => {
       if (event.target.matches("input, select, textarea")) return;
       const keymap = {ArrowLeft:"left", a:"left", ArrowRight:"right", d:"right", ArrowUp:"forward", w:"forward", s:"shoot", g:"grab", c:"climb"};
       if (event.key.toLowerCase() === "n") { newGame(); return; }
+      if (event.key === "Enter") { event.preventDefault(); contextualAction(); return; }
+      if (event.code === "Space" && event.shiftKey) { event.preventDefault(); act("shoot"); return; }
       const action = keymap[event.key] || keymap[event.key.toLowerCase()];
       if (action) { event.preventDefault(); act(action); }
     });
