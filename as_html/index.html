@@ -323,6 +323,8 @@
     let heroFrame = 0;
     let heroFrameStep = 1;
     let shootingFrame = null;
+    const goldCue = new Audio("assets/gold.mp3");
+    const deathCue = new Audio("assets/thou_art_dead.mp3");
 
     function hashSeed(text) {
       let h = 2166136261 >>> 0;
@@ -445,6 +447,10 @@
           game.transient.add("bump"); note("Bump! Cold stone blocks the way.");
         } else {
           game.position = next; game.visited.add(next); note("Advanced into the next chamber.");
+          if (next === game.cave.gold && !game.gold) {
+            goldCue.currentTime = 0;
+            goldCue.play().catch(() => {});
+          }
           if (game.cave.pits.has(next)) die("You fell into a bottomless pit.");
           else if (next === game.cave.wumpus && game.wumpusAlive) die("The Wumpus devoured you.");
         }
@@ -484,6 +490,8 @@
 
     function die(reason) {
       game.alive = false; game.ended = true; game.score -= 1000; note(`${reason} Final score: ${game.score}.`);
+      deathCue.currentTime = 0;
+      deathCue.play().catch(() => {});
     }
 
     function moveToward(index) {
