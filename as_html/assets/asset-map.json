@@ -36,6 +36,10 @@
     }
   },
   "runtime": {
+    "amazon.p02.line03.rt.png": { "semantic": "walking_sw_cycle_a", "source": "amazon.gif", "patch": 2, "line": 3, "pixel_rect": [1217, 178, 608, 80], "frames": 8, "foot_registered": true },
+    "amazon.p02.line16.rt.png": { "semantic": "walking_se", "source": "amazon.gif", "patch": 2, "line": 16, "pixel_rect": [1217, 1244, 608, 80], "frames": 8, "foot_registered": true },
+    "amazon.p02.line07.rt.png": { "semantic": "walking_nw", "source": "amazon.gif", "patch": 2, "line": 7, "pixel_rect": [1217, 501, 608, 80], "frames": 8, "foot_registered": true },
+    "amazon.p02.line12.rt.png": { "semantic": "walking_ne", "source": "amazon.gif", "patch": 2, "line": 12, "pixel_rect": [1217, 914, 608, 80], "frames": 8, "foot_registered": true },
     "amazon.p05.line04.rt.png": { "semantic": "shooting_sw", "source": "amazon.gif", "patch": 5, "line": 4, "pixel_rect": [625, 1668, 570, 110], "frames": 6, "mask": ["#AAAAAA", "#FCE4A4"] },
     "amazon.p05.line08.rt.png": { "semantic": "shooting_nw", "source": "amazon.gif", "patch": 5, "line": 8, "pixel_rect": [625, 2099, 570, 110], "frames": 6, "mask": ["#AAAAAA", "#FCE4A4"] },
     "amazon.p05.line12.rt.png": { "semantic": "shooting_ne", "source": "amazon.gif", "patch": 5, "line": 12, "pixel_rect": [625, 2544, 570, 110], "frames": 6, "mask": ["#AAAAAA", "#FCE4A4"] },

@@ -19,6 +19,7 @@ for cell_x in $(seq 0 15); do
 done
 
 python3 "$asset_dir/align_amazon_shooting.py"
+python3 "$asset_dir/align_amazon_walking.py"
 
 cp "$frame_dir/amazon-p01-00.gif" "$asset_dir/amazon.p01.c01_01.rt.gif"
 

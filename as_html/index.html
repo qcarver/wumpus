@@ -323,6 +323,8 @@
     let heroFrame = 0;
     let heroFrameStep = 1;
     let shootingFrame = null;
+    let walkingFrame = null;
+    let walkingFrameStep = 1;
     const goldCue = new Audio("assets/gold.mp3");
     const deathCue = new Audio("assets/thou_art_dead.mp3");
 
@@ -447,6 +449,10 @@
           game.transient.add("bump"); note("Bump! Cold stone blocks the way.");
         } else {
           game.position = next; game.visited.add(next); note("Advanced into the next chamber.");
+          if (["up", "right", "down", "left"].includes(game.facing)) {
+            walkingFrame = 0;
+            walkingFrameStep = 1;
+          } else walkingFrame = null;
           if (next === game.cave.gold && !game.gold) {
             goldCue.currentTime = 0;
             goldCue.play().catch(() => {});
@@ -572,13 +578,18 @@
           };
           const shootingRows = { up: 12, right: 16, down: 4, left: 8 };
           const isShooting = shootingFrame !== null;
-          const frameCount = isShooting ? 6 : 16;
-          const row = isShooting ? shootingRows[game.facing] : standingRows[game.facing];
+          const isWalking = !isShooting && walkingFrame !== null;
+          const walkRows = { up: 12, right: 16, down: 3, left: 7 };
+          const frameCount = isShooting ? 6 : isWalking ? 8 : 16;
+          const row = isShooting ? shootingRows[game.facing] : isWalking ? walkRows[game.facing] : standingRows[game.facing];
           if (isShooting) sprite.classList.add("shooting");
-          sprite.style.backgroundImage = `url("assets/amazon.p${isShooting ? "05" : "01"}.line${String(row).padStart(2, "0")}.rt.png")`;
+          if (isWalking) sprite.classList.add("walking");
+          const patch = isShooting ? "05" : isWalking ? "02" : "01";
+          sprite.style.backgroundImage = `url("assets/amazon.p${patch}.line${String(row).padStart(2, "0")}.rt.png")`;
           sprite.style.backgroundSize = `${frameCount * 100}% 100%`;
           sprite.style.backgroundRepeat = "no-repeat";
-          sprite.style.backgroundPosition = `${(isShooting ? shootingFrame / 5 : heroFrame / 15) * 100}% 0`;
+          const frame = isShooting ? shootingFrame / 5 : isWalking ? walkingFrame / 7 : heroFrame / 15;
+          sprite.style.backgroundPosition = `${frame * 100}% 0`;
           agent.append(sprite); cell.append(agent);
         }
         const fog = document.createElement("span"); fog.className = "fog"; cell.append(fog);
@@ -629,6 +640,14 @@
         else { shootingFrame = null; render(); return; }
         const sprite = document.querySelector(".agent .amazon-sprite");
         if (sprite) sprite.style.backgroundPosition = `${shootingFrame / 5 * 100}% 0`;
+        return;
+      }
+      if (walkingFrame !== null) {
+        walkingFrame += walkingFrameStep;
+        if (walkingFrame >= 7) { walkingFrame = 7; walkingFrameStep = -1; }
+        else if (walkingFrame <= 0) { walkingFrame = null; walkingFrameStep = 1; render(); return; }
+        const sprite = document.querySelector(".agent .amazon-sprite.walking");
+        if (sprite) sprite.style.backgroundPosition = `${walkingFrame / 7 * 100}% 0`;
         return;
       }
       heroFrame += heroFrameStep;
