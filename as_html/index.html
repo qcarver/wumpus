@@ -330,6 +330,8 @@
     let walkingFinishing = false;
     const goldCue = new Audio("assets/gold.mp3");
     const deathCue = new Audio("assets/thou_art_dead.mp3");
+    const wumpusDeathCue = new Audio("assets/willhelm.mp3");
+    const chingCue = new Audio("assets/warble-C.mp3");
 
     function hashSeed(text) {
       let h = 2166136261 >>> 0;
@@ -438,7 +440,7 @@
       note(`Facing ${FACING_NAMES[game.facing]}.`);
     }
 
-    function act(action) {
+    function act(action, { viaEnter = false } = {}) {
       if (!game || game.ended || locked || game.moveVisual) return;
       locked = true;
       game.transient = new Set();
@@ -472,6 +474,10 @@
       if (action === "grab") {
         if (game.position === game.cave.gold && !game.gold) {
           game.gold = true; game.score += 1000; note("You seize the gold. Now find the exit!");
+          if (viaEnter) {
+            chingCue.currentTime = 0;
+            chingCue.play().catch(() => {});
+          }
         } else note("There is nothing here to grab.");
       }
       if (action === "shoot") {
@@ -487,6 +493,8 @@
           }
           if (hit) {
             game.wumpusAlive = false; game.transient.add("scream"); note("A terrible scream rolls through the cave. The Wumpus is dead.");
+            wumpusDeathCue.currentTime = 0;
+            wumpusDeathCue.play().catch(() => {});
           } else note("The arrow clatters into darkness.");
         }
       }
@@ -528,7 +536,7 @@
 
     function contextualAction() {
       if (!game || game.ended || locked) return;
-      if (game.position === game.cave.gold && !game.gold) act("grab");
+      if (game.position === game.cave.gold && !game.gold) act("grab", { viaEnter: true });
       else if (game.position === game.cave.entry) act("climb");
       else act("grab");
     }
