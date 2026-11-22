@@ -14,9 +14,11 @@ for cell_x in $(seq 0 15); do
   frame_name=$(printf '%s/amazon-p01-%02d.gif' "$frame_dir" "$cell_x")
   "$image_tool" "$asset_dir/amazon.gif" \
     -crop "76x80+${source_x}+14" +repage \
-    -fuzz 5% -transparent '#AAAAAA' \
+    -fuzz 5% -transparent '#AAAAAA' -fuzz 0% -transparent '#FCE4A4' \
     "$frame_name"
 done
+
+python3 "$asset_dir/align_amazon_shooting.py"
 
 cp "$frame_dir/amazon-p01-00.gif" "$asset_dir/amazon.p01.c01_01.rt.gif"
 
@@ -40,7 +42,7 @@ for line in 3 4 7 8 11 12 15 16; do
     aligned_name=$(printf '%s/amazon-line-%02d-%02d.png' "$frame_dir" "$line" "$cell_x")
     "$image_tool" "$asset_dir/amazon.gif" \
       -crop "76x80+${x}+${y}" +repage \
-      -fuzz 5% -transparent '#AAAAAA' "$aligned_name"
+      -fuzz 5% -transparent '#AAAAAA' -fuzz 0% -transparent '#FCE4A4' "$aligned_name"
     frames+=("$aligned_name")
   done
   "$image_tool" "${frames[@]}" +append "$asset_dir/amazon.p01.line$(printf '%02d' "$line").rt.png"
@@ -65,5 +67,9 @@ done
   -crop 160x80+320+160 +repage \
   -fuzz 8% -transparent '#FF00FF' \
   "$asset_dir/floor.p01.c03_03.rt.gif"
+
+"$image_tool" "$asset_dir/items.png" \
+  -crop 135x93+259+347 +repage \
+  "$asset_dir/items.gold-bag.rt.png"
 
 printf 'Built runtime assets in %s\n' "$asset_dir"

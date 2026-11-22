@@ -36,6 +36,16 @@
     }
   },
   "runtime": {
+    "amazon.p05.line04.rt.png": { "semantic": "shooting_sw", "source": "amazon.gif", "patch": 5, "line": 4, "pixel_rect": [625, 1668, 570, 110], "frames": 6, "mask": ["#AAAAAA", "#FCE4A4"] },
+    "amazon.p05.line08.rt.png": { "semantic": "shooting_nw", "source": "amazon.gif", "patch": 5, "line": 8, "pixel_rect": [625, 2099, 570, 110], "frames": 6, "mask": ["#AAAAAA", "#FCE4A4"] },
+    "amazon.p05.line12.rt.png": { "semantic": "shooting_ne", "source": "amazon.gif", "patch": 5, "line": 12, "pixel_rect": [625, 2544, 570, 110], "frames": 6, "mask": ["#AAAAAA", "#FCE4A4"] },
+    "amazon.p05.line16.rt.png": { "semantic": "shooting_se", "source": "amazon.gif", "patch": 5, "line": 16, "pixel_rect": [625, 2984, 570, 110], "frames": 6, "mask": ["#AAAAAA", "#FCE4A4"] },
+    "items.gold-bag.rt.png": {
+      "semantic": "gold_bag",
+      "source": "items.png",
+      "pixel_rects": [[259, 347, 135, 93]],
+      "mask": "source alpha preserved"
+    },
     "amazon.p01.c01_01.rt.gif": {
       "semantic": "amazon_rest",
       "source": "amazon.gif",

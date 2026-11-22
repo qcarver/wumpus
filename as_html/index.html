@@ -183,13 +183,16 @@
       transform: translateX(-50%);
       transform-origin: 50% 100%;
     }
+    .amazon-sprite.shooting { width: 152px; aspect-ratio: 152 / 72; }
     .agent.bump .amazon-sprite { animation: bump .22s ease-out 2; }
     .wumpus { z-index: 7; }
     .wumpus img { width: 76%; }
     .stairs { z-index: 2; inset: 3% 10% 2%; }
     .gold, .pit, .artifact { z-index: 3; }
     .stairs img { width: 100%; height: 100%; object-fit: fill; }
-    .gold { font-size: clamp(1.1rem, 3.5vw, 2.2rem); filter: drop-shadow(0 0 10px #ffc83b); }
+    .gold { inset: 0; display: block; }
+    .gold img { position: absolute; left: 50%; top: 68%; display: block; width: min(100%, 33.75px); height: auto; transform: translate(-50%, -50%); image-rendering: pixelated; filter: drop-shadow(0 0 10px #ffc52ddd); }
+    .gold img.twinkle { animation: gold-twinkle .58s ease-in-out; }
     .pit { width: 56%; aspect-ratio: 2 / 1; border-radius: 50%; background: radial-gradient(ellipse, #000 20%, #180e0c 56%, #5f3b2b 70%, transparent 73%); box-shadow: inset 0 0 18px #000; }
     .arrow-shot { position: absolute; z-index: 9; inset: 46% 8%; height: 3px; background: #e7d2a1; transform-origin: left; animation: shoot .38s ease-in forwards; }
 
@@ -219,6 +222,10 @@
     @keyframes bump { 50% { translate: -8px 0; filter: drop-shadow(0 0 8px #ff3b24); } }
     @keyframes shoot { to { transform: translateX(110%); opacity: 0; } }
     @keyframes die { to { transform: rotate(90deg) translateY(20%); opacity: .72; } }
+    @keyframes gold-twinkle {
+      0%, 100% { filter: drop-shadow(0 0 10px #ffc52ddd) brightness(1); }
+      45% { filter: drop-shadow(0 0 18px #fff3aaff) brightness(1.65); }
+    }
 
     @media (max-width: 850px) {
       main { grid-template-columns: 1fr; }
@@ -315,6 +322,7 @@
     let locked = false;
     let heroFrame = 0;
     let heroFrameStep = 1;
+    let shootingFrame = null;
 
     function hashSeed(text) {
       let h = 2166136261 >>> 0;
@@ -449,6 +457,7 @@
       if (action === "shoot") {
         if (game.arrows < 1) note("The quiver is empty.");
         else {
+          shootingFrame = 0;
           game.arrows--; game.score -= 10;
           let arrow = game.position, hit = false;
           while (true) {
@@ -530,9 +539,13 @@
             stairs.append(img); cell.append(stairs);
           }
           if (cave.pits.has(i)) cell.append(entity("pit"));
-          if (i === cave.gold && !game.gold) cell.append(entity("gold", "◆"));
+          if (i === cave.gold && !game.gold) {
+            const gold = entity("gold");
+            const img = new Image(); img.src = "assets/items.gold-bag.rt.png"; img.alt = "Gold bag";
+            gold.append(img); cell.append(gold);
+          }
           if (i === cave.wumpus) {
-            cell.classList.add("has-monster");
+            if (game.wumpusAlive) cell.classList.add("has-monster");
             const w = entity("wumpus");
             const img = new Image();
             img.src = game.wumpusAlive ? "assets/wumpus.p05.c01_01.rt.gif" : "assets/wumpus.p03.c01_01.rt.gif";
@@ -549,10 +562,15 @@
             down: game.arrows ? 3 : 4,
             left: game.arrows ? 7 : 8
           };
-          sprite.style.backgroundImage = `url("assets/amazon.p01.line${String(standingRows[game.facing]).padStart(2, "0")}.rt.png")`;
-          sprite.style.backgroundSize = "1600% 100%";
+          const shootingRows = { up: 12, right: 16, down: 4, left: 8 };
+          const isShooting = shootingFrame !== null;
+          const frameCount = isShooting ? 6 : 16;
+          const row = isShooting ? shootingRows[game.facing] : standingRows[game.facing];
+          if (isShooting) sprite.classList.add("shooting");
+          sprite.style.backgroundImage = `url("assets/amazon.p${isShooting ? "05" : "01"}.line${String(row).padStart(2, "0")}.rt.png")`;
+          sprite.style.backgroundSize = `${frameCount * 100}% 100%`;
           sprite.style.backgroundRepeat = "no-repeat";
-          sprite.style.backgroundPosition = `${heroFrame / 15 * 100}% 0`;
+          sprite.style.backgroundPosition = `${(isShooting ? shootingFrame / 5 : heroFrame / 15) * 100}% 0`;
           agent.append(sprite); cell.append(agent);
         }
         const fog = document.createElement("span"); fog.className = "fog"; cell.append(fog);
@@ -578,6 +596,19 @@
     function entity(className, text = "") {
       const span = document.createElement("span"); span.className = `entity ${className}`; span.textContent = text; return span;
     }
+
+    function scheduleGoldTwinkle() {
+      setTimeout(() => {
+        const bag = document.querySelector(".gold img");
+        if (bag) {
+          bag.classList.remove("twinkle");
+          void bag.offsetWidth;
+          bag.classList.add("twinkle");
+          setTimeout(() => bag.classList.remove("twinkle"), 620);
+        }
+        scheduleGoldTwinkle();
+      }, 2400 + Math.random() * 1200);
+    }
     function chip(text, className) {
       const span = document.createElement("span"); span.className = `percept ${className}`; span.textContent = text; return span;
     }
@@ -585,6 +616,13 @@
     form.addEventListener("submit", event => { event.preventDefault(); newGame(); });
     setInterval(() => {
       if (!game || !game.alive || game.ended) return;
+      if (shootingFrame !== null) {
+        if (shootingFrame < 5) shootingFrame++;
+        else { shootingFrame = null; render(); return; }
+        const sprite = document.querySelector(".agent .amazon-sprite");
+        if (sprite) sprite.style.backgroundPosition = `${shootingFrame / 5 * 100}% 0`;
+        return;
+      }
       heroFrame += heroFrameStep;
       if (heroFrame >= 15) { heroFrame = 15; heroFrameStep = -1; }
       else if (heroFrame <= 0) { heroFrame = 0; heroFrameStep = 1; }
@@ -602,6 +640,7 @@
       if (action) { event.preventDefault(); act(action); }
     });
 
+    scheduleGoldTwinkle();
     newGame();
   })();
   </script>
