@@ -1,5 +1,7 @@
 # Character-sheet and runtime-asset convention
 
+The page also bundles `unifrakturcook-latin.woff2` for its woodcut-style headings. It is self-hosted so the page keeps its typography when opened from disk or served from a static host. `UNIFRAKTURCOOK-OFL.txt` contains the font's SIL Open Font License.
+
 This directory deliberately contains two kinds of graphics:
 
 1. **Source sheets** retain their original handoff filenames (`amazon.gif`, `wumpus.gif`, and so on). They are never loaded by the game at runtime.
@@ -39,9 +41,10 @@ Horizontal sequence:
 Examples:
 
 - `amazon.p01.c01_01.rt.gif` is the first Town Neutral cell.
-- `amazon.p01.c01-16_01.rt.gif` is the first Town Neutral row as one ordered animated GIF.
 - `wumpus.p05.c01_01.rt.gif` is the first cell of the fifth Wumpus patch, interpreted as Neutral.
 - `floor.p01.c03_03.rt.gif` is the stair-entry glyph at `floor.png (3,3)`.
+- `floor.p03.c01-15.rt.png` holds the fifteen lower floor diamonds, also reused as the two pillar side panels.
+- `floor.p01.c01_02.rt.png` is the alpha-preserving front/roof tile at `floor.png (1,2)`, used with the layered pillar cube in the game renderer.
 
 `asset-map.json` correlates every current runtime file to its source sheet, semantic use, patch interpretation, logical cells, and exact source-pixel crop. `build-runtime.sh` reproduces the runtime files using ImageMagick without modifying a source sheet.
 

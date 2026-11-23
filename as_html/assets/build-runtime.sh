@@ -23,12 +23,6 @@ python3 "$asset_dir/align_amazon_walking.py"
 
 cp "$frame_dir/amazon-p01-00.gif" "$asset_dir/amazon.p01.c01_01.rt.gif"
 
-# No -loop option: this flourish plays once, after which the UI restores the
-# single resting cell. Frames remain ordered horizontally, cell 0 through 15.
-"$image_tool" -delay 10 -dispose background \
-  "$frame_dir"/amazon-p01-*.gif -layers Optimize \
-  "$asset_dir/amazon.p01.c01-16_01.rt.gif"
-
 # Compact transparent atlases for the eight standing rows catalogued in
 # amazon.sheet.json (four directions, ammunition present/absent).
 for line in 3 4 7 8 11 12 15 16; do
@@ -60,17 +54,35 @@ done
   "$asset_dir/wumpus.p03.c01_01.rt.gif"
 
 "$image_tool" "$asset_dir/floor.png" \
-  -crop 160x88+0+632 +repage \
-  -fuzz 8% -transparent '#FF00FF' \
-  "$asset_dir/floor.p03.c01_01.rt.gif"
-
-"$image_tool" "$asset_dir/floor.png" \
   -crop 160x80+320+160 +repage \
   -fuzz 8% -transparent '#FF00FF' \
   "$asset_dir/floor.p01.c03_03.rt.gif"
 
+floor_frames=()
+for row in 0 1 2; do
+  for col in 0 1 2 3 4; do
+    x=$((col * 160)); y=$((639 + row * 80))
+    frame=$(printf '%s/floor-p03-%02d.png' "$frame_dir" "$((row * 5 + col))")
+    "$image_tool" "$asset_dir/floor.png" -crop "160x80+${x}+${y}" +repage "$frame"
+    floor_frames+=("$frame")
+  done
+done
+"$image_tool" "${floor_frames[@]}" +append "$asset_dir/floor.p03.c01-15.rt.png"
+"$image_tool" "$asset_dir/floor.png" \
+  -crop 160x80+0+80 +repage \
+  "$asset_dir/floor.p01.c01_02.rt.png"
+
 "$image_tool" "$asset_dir/items.png" \
   -crop 135x93+259+347 +repage \
   "$asset_dir/items.gold-bag.rt.png"
+
+"$image_tool" "$asset_dir/items.png" \
+  -crop 108x87+1067+933 +repage \
+  "$asset_dir/items.map.rt.png"
+
+"$image_tool" "$asset_dir/floor2.png" \
+  -crop 160x80+320+160 +repage \
+  -fuzz 8% -transparent '#FF00FF' \
+  "$asset_dir/floor2.p01.c03_03.rt.gif"
 
 printf 'Built runtime assets in %s\n' "$asset_dir"

@@ -3,8 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Wumpus Web — first cut</title>
+  <title>Hunt the Wumpus</title>
   <style>
+    @font-face {
+      font-family: "UnifrakturCook";
+      src: url("assets/unifrakturcook-latin.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
     :root {
       color-scheme: dark;
       --ink: #f4e6c1;
@@ -43,18 +51,132 @@
       padding: 18px clamp(12px, 3vw, 30px) 36px;
     }
 
-    header {
+    header.fire-scene {
+      position: relative;
       display: flex;
-      gap: 18px;
-      justify-content: space-between;
-      align-items: end;
-      border-bottom: 1px solid #514a39;
-      padding-bottom: 12px;
+      align-items: flex-end;
+      justify-content: center;
+      min-height: 168px;
+      margin: 0 0 18px;
+      padding: 0;
+      overflow: hidden;
+      border: 0;
+      isolation: isolate;
     }
+    .lava-field { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
+    .lava-field::before {
+      content: "";
+      position: absolute;
+      left: -3%; right: -3%; bottom: 0; height: 68px;
+      background: linear-gradient(180deg, #761006 0, #e2260b 24%, #ff4b12 45%, #c71c08 71%, #650800 100%);
+      clip-path: polygon(0 19%, 5% 13%, 11% 18%, 17% 10%, 25% 17%, 32% 11%, 40% 16%, 48% 8%, 55% 15%, 64% 9%, 72% 17%, 80% 11%, 89% 17%, 95% 10%, 100% 17%, 100% 100%, 0 100%);
+      box-shadow: 0 -6px 18px #ff3a0d88;
+    }
+    .lava-field::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 55px; height: 14px;
+      background: linear-gradient(180deg, #ffd64caa, #ff5714aa 55%, transparent);
+      filter: blur(5px);
+    }
+    .fire-lick {
+      position: absolute;
+      z-index: 1;
+      bottom: 48px;
+      left: var(--fire-x);
+      width: var(--fire-w);
+      height: var(--fire-h);
+      transform-origin: center bottom;
+      background: linear-gradient(180deg, #ffe786 0, #ff8a16 27%, #f33a0a 69%, #9d0d04 100%);
+      clip-path: polygon(50% 100%, 12% 74%, 28% 58%, 16% 40%, 39% 0, 45% 32%, 68% 11%, 65% 42%, 95% 28%, 81% 61%, 100% 77%);
+      filter: drop-shadow(0 0 7px #ff5c0d99);
+      animation: flame-lick var(--fire-speed) ease-in-out var(--fire-delay) infinite;
+    }
+    .fire-lick::after {
+      content: "";
+      position: absolute;
+      inset: 24% 31% 0;
+      background: linear-gradient(180deg, #fff7b7, #ffce3c 45%, #ff5a12 100%);
+      clip-path: polygon(50% 100%, 0 52%, 28% 0, 46% 42%, 72% 8%, 100% 62%);
+      opacity: .92;
+    }
+    .fire-lick:nth-child(1) { --fire-x: 3%; --fire-w: 18px; --fire-h: 42px; --fire-speed: 1.05s; --fire-delay: -.3s; }
+    .fire-lick:nth-child(2) { --fire-x: 11%; --fire-w: 12px; --fire-h: 31px; --fire-speed: .86s; --fire-delay: -.6s; }
+    .fire-lick:nth-child(3) { --fire-x: 19%; --fire-w: 21px; --fire-h: 54px; --fire-speed: 1.2s; --fire-delay: -.15s; }
+    .fire-lick:nth-child(4) { --fire-x: 28%; --fire-w: 13px; --fire-h: 34px; --fire-speed: .95s; --fire-delay: -.72s; }
+    .fire-lick:nth-child(5) { --fire-x: 37%; --fire-w: 17px; --fire-h: 45px; --fire-speed: 1.3s; --fire-delay: -.4s; }
+    .fire-lick:nth-child(6) { --fire-x: 46%; --fire-w: 12px; --fire-h: 28px; --fire-speed: .9s; --fire-delay: -.1s; }
+    .fire-lick:nth-child(7) { --fire-x: 55%; --fire-w: 20px; --fire-h: 51px; --fire-speed: 1.12s; --fire-delay: -.63s; }
+    .fire-lick:nth-child(8) { --fire-x: 64%; --fire-w: 12px; --fire-h: 33px; --fire-speed: .9s; --fire-delay: -.37s; }
+    .fire-lick:nth-child(9) { --fire-x: 73%; --fire-w: 19px; --fire-h: 48px; --fire-speed: 1.22s; --fire-delay: -.8s; }
+    .fire-lick:nth-child(10) { --fire-x: 82%; --fire-w: 13px; --fire-h: 34px; --fire-speed: .98s; --fire-delay: -.22s; }
+    .fire-lick:nth-child(11) { --fire-x: 90%; --fire-w: 18px; --fire-h: 53px; --fire-speed: 1.16s; --fire-delay: -.51s; }
+    .fire-lick:nth-child(12) { --fire-x: 97%; --fire-w: 12px; --fire-h: 37px; --fire-speed: .88s; --fire-delay: -.09s; }
 
-    h1 { margin: 0; font-size: clamp(1.65rem, 4vw, 2.65rem); letter-spacing: .04em; }
-    .kicker { color: var(--gold); text-transform: uppercase; letter-spacing: .18em; font: 700 .72rem system-ui; }
-    .build { color: var(--muted); font: .78rem system-ui; white-space: nowrap; }
+    .title-platform { position: relative; z-index: 3; width: min(820px, 96%); height: 120px; margin-bottom: 6px; }
+    .title-platform::before {
+      content: "";
+      position: absolute;
+      inset: 44px 0 0;
+      clip-path: polygon(5% 0, 95% 0, 100% 25%, 96% 43%, 98% 77%, 90% 100%, 10% 100%, 2% 77%, 4% 43%, 0 25%);
+      background:
+        repeating-linear-gradient(96deg, transparent 0 21px, #2a15091e 22px 24px, transparent 25px 42px),
+        linear-gradient(180deg, #ffe084 0 5px, #98601b 6px 12px, #e4ab42 13px 28px, #66390f 29px 39px, #bd8029 40px 100%);
+      box-shadow: 0 9px 14px #000b, inset 0 2px 0 #fff0a0, inset 0 -7px 0 #442309;
+    }
+    .title-platform::after {
+      content: "";
+      position: absolute;
+      inset: 51px 3% 10px;
+      clip-path: polygon(4% 0, 96% 0, 100% 26%, 96% 45%, 98% 75%, 91% 100%, 9% 100%, 2% 75%, 4% 45%, 0 26%);
+      border: 1px solid #f6d178;
+      background: linear-gradient(180deg, #b87922aa, #5a300e66 45%, #cf8c2a99);
+      box-shadow: inset 0 0 0 2px #341a0a88, inset 0 5px 7px #ffd46c44;
+      pointer-events: none;
+    }
+    .title-platform h1 {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      top: 76px;
+      transform: translate(-50%, -50%);
+      scale: .96;
+      width: max-content;
+      max-width: 100%;
+      margin: 0;
+      color: #ffe39a;
+      font: 700 clamp(1.8rem, 7vw, 4.5rem)/.95 "UnifrakturCook", "DejaVu Serif", Georgia, serif;
+      letter-spacing: .025em;
+      white-space: nowrap;
+      -webkit-text-stroke: 1.2px #381a08;
+      paint-order: stroke fill;
+      text-shadow: 0 -1px 0 #fff1be, 0 2px 0 #b46d20, 1px 4px 0 #401c08, 0 7px 8px #000d;
+    }
+    .platform-rivet {
+      position: absolute;
+      z-index: 4;
+      top: 75px;
+      width: 9px;
+      height: 9px;
+      border: 1px solid #f7d477;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff1ae, #98601c 57%, #321707 61%);
+      box-shadow: 0 1px 2px #170a03;
+    }
+    .platform-rivet.left { left: 8%; }
+    .platform-rivet.right { right: 8%; }
+    .platform-sigil {
+      position: absolute;
+      z-index: 4;
+      top: 57px;
+      color: #ffe08c;
+      font: 700 1.3rem/1 "UnifrakturCook", Georgia, serif;
+      text-shadow: 0 2px 0 #4a240d, 0 0 8px #ffc13a99;
+    }
+    .platform-sigil.left { left: 12%; }
+    .platform-sigil.right { right: 12%; }
+    .kicker { color: var(--gold); text-transform: uppercase; letter-spacing: .1em; font: 700 .9rem/1 "UnifrakturCook", "DejaVu Serif", Georgia, serif; }
+    .build { color: var(--muted); font: .9rem/1.1 "UnifrakturCook", "DejaVu Serif", Georgia, serif; white-space: nowrap; }
 
     .config {
       display: flex;
@@ -66,21 +188,24 @@
       background: #0f1214cc;
       border: 1px solid #34393a;
       border-radius: 8px;
-      font: .84rem system-ui;
+      font: 1rem/1.15 "UnifrakturCook", "DejaVu Serif", Georgia, serif;
     }
     .config label { display: grid; gap: 4px; color: var(--muted); }
     .config label.check { display: flex; align-items: center; gap: 7px; padding-bottom: 7px; }
     .config input[type="number"], .config input[type="text"] {
-      width: 86px; padding: 7px; color: white; background: #080a0b; border: 1px solid #555; border-radius: 4px;
+      width: 86px; padding: 7px; color: white; background: #080a0b; border: 1px solid #806a45; border-radius: 4px;
+      font-family: Georgia, "Times New Roman", serif;
     }
     .primary, .action {
       border: 1px solid #665d44;
       border-radius: 5px;
       padding: 8px 12px;
-      background: linear-gradient(#353226, #1c1a15);
+      background: linear-gradient(#68491f, #24140a);
+      font-family: "UnifrakturCook", "DejaVu Serif", Georgia, serif;
+      font-weight: 700;
       cursor: pointer;
     }
-    .primary:hover, .action:hover { border-color: var(--gold); background: #3b3320; }
+    .primary:hover, .action:hover { border-color: #ffdf86; background: #493017; }
 
     main {
       display: grid;
@@ -88,10 +213,13 @@
       gap: clamp(16px, 3vw, 30px);
       align-items: start;
     }
+    .play-lane { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; align-content: start; }
 
     .board-wrap {
+      position: relative;
       min-width: 0;
       display: grid;
+      grid-template-columns: minmax(0, 1fr);
       justify-content: center;
       overflow: auto;
       min-height: 420px;
@@ -103,6 +231,7 @@
       border: 1px solid #4c493e;
       box-shadow: 0 18px 70px #000a, inset 0 0 45px #000;
     }
+    .play-lane > .config { width: 100%; box-sizing: border-box; margin: 0; justify-content: space-between; }
 
     #board {
       display: grid;
@@ -125,46 +254,30 @@
       isolation: isolate;
       margin: 0;
     }
+    .cell.hero-in-transit { z-index: 10000 !important; }
     .cell::before {
       content: "";
       position: absolute;
       inset: 0;
       clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-      background: #242826 url("assets/floor.p03.c01_01.rt.gif") center/100% 100% no-repeat;
+      background: #242826 url("assets/floor.p03.c01-15.rt.png") left center/1500% 100% no-repeat;
+      background-position: var(--floor-position, 0%) center;
       z-index: 0;
     }
-    .cell.has-agent { z-index: 100 !important; }
-    .cell.has-monster { z-index: 110 !important; }
-    .cell:hover { filter: brightness(1.22) drop-shadow(0 0 8px #d5b65a88); z-index: 100 !important; }
+    .cell.unvisited::before { filter: brightness(0); }
+    .cell.wall::before { display: none; }
+    .cell:hover { filter: brightness(1.22) drop-shadow(0 0 8px #d5b65a88); }
     .cell.wall {
       cursor: not-allowed;
     }
-    .cell.wall::before {
-      background:
-        linear-gradient(135deg, transparent 46%, #0b0c0c 47% 53%, transparent 54%),
-        linear-gradient(45deg, transparent 46%, #0b0c0c 47% 53%, transparent 54%),
-        repeating-linear-gradient(0deg, #2d3030 0 11px, #1b1d1d 12px 14px);
-      filter: saturate(.4) brightness(.7);
-    }
-    .cell.entry::after {
-      content: "EXIT";
-      position: absolute;
-      right: 25%;
-      bottom: 13%;
-      z-index: 5;
-      color: #cfbd8d;
-      font: 700 clamp(.42rem, 1vw, .65rem) system-ui;
-      letter-spacing: .1em;
-    }
     .fog {
-      position: absolute; inset: 0; z-index: 8;
+      position: absolute; inset: -3px; z-index: 8;
       clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-      background:
-        radial-gradient(circle at 45% 40%, #20272acb 0 12%, #0b0e10f3 70%),
-        repeating-linear-gradient(135deg, transparent 0 8px, #ffffff05 9px 10px);
+      background: #08090a url("assets/floor2.p01.c01-05_10.rt.png") left center / 500% 100% no-repeat;
+      filter: drop-shadow(0 0 3px #090000);
       transition: opacity .25s;
     }
-    .seen .fog, .wall .fog { opacity: 0; pointer-events: none; }
+    .seen .fog, .wall.discovered .fog { opacity: 0; pointer-events: none; }
 
     .entity { position: absolute; z-index: 4; inset: 5% 18% 4%; display: grid; place-items: center; pointer-events: none; }
     .entity img { max-width: 100%; max-height: 100%; image-rendering: pixelated; filter: drop-shadow(0 5px 4px #000c); }
@@ -189,33 +302,67 @@
     .wumpus { z-index: 7; }
     .wumpus img { width: 76%; }
     .stairs { z-index: 2; inset: 3% 10% 2%; }
+    .pillars { z-index: 5; inset: 0; display: block; overflow: visible; pointer-events: none; transform: translateY(calc(-33% + 5px)); }
+    .pillar-panel {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background-image: url("assets/floor.p03.c01-15.rt.png");
+      background-repeat: no-repeat; background-size: 1500% 100%;
+      transform-origin: center center;
+    }
+    .pillar-panel.left { background-position: 0% center; transform: translateX(-25%) rotate(61.2deg); }
+    .pillar-panel.right { z-index: 2; background-position: 7.142857% center; transform: translateX(calc(25% + 1px)) rotate(-61.2deg); }
+    .pillar-roof {
+      position: absolute; inset: 0; z-index: 3; display: block; width: 100%; height: 100%;
+      object-fit: fill; image-rendering: pixelated; transform: translateY(-75%); transform-origin: center center;
+      filter: none; pointer-events: none;
+    }
+    .pillar-grout {
+      position: absolute; left: calc(50% - 3px); top: 25%; z-index: 0;
+      width: 6px; height: calc(115% - 10px); pointer-events: none;
+      background: linear-gradient(90deg,#15151588,#4b4b4b55 32%,#1d1d1d99 68%,#45454566),
+        repeating-linear-gradient(180deg,#292929 0 1px,#3a3a3a 1px 2px,#242424 2px 3px,#414141 3px 4px,#2c2c2c 4px 5px,#353535 5px 6px,#202020 6px 7px,#3c3c3c 7px 8px);
+      transform-origin: 50% 0%;
+    }
+    .pillar-grout.cw { transform: rotate(120deg); }
+    .pillar-grout.ccw { transform: rotate(-120deg); }
     .gold, .pit, .artifact { z-index: 3; }
     .stairs img { width: 100%; height: 100%; object-fit: fill; }
     .gold { inset: 0; display: block; }
     .gold img { position: absolute; left: 50%; top: 68%; display: block; width: min(100%, 33.75px); height: auto; transform: translate(-50%, -50%); image-rendering: pixelated; filter: drop-shadow(0 0 10px #ffc52ddd); }
+    .artifact img { position: absolute; left: 50%; top: 68%; display: block; width: min(100%, 32.4px); height: auto; transform: translate(-50%, -50%); image-rendering: pixelated; }
     .gold img.twinkle { animation: gold-twinkle .58s ease-in-out; }
-    .pit { width: 56%; aspect-ratio: 2 / 1; border-radius: 50%; background: radial-gradient(ellipse, #000 20%, #180e0c 56%, #5f3b2b 70%, transparent 73%); box-shadow: inset 0 0 18px #000; }
+    .pit { inset: 0; display: block; }
+    .pit img { display: block; width: 100%; height: 100%; object-fit: fill; image-rendering: pixelated; }
+    .wind-whisps { position: absolute; z-index: 5; left: 0; right: 0; top: -50%; bottom: 0; overflow: visible; pointer-events: none; }
+    .wind-whisps svg { width: 100%; height: 100%; overflow: visible; }
+    .wind-whisps path { fill: none; stroke: #fffdf1; stroke-width: 1.8; stroke-linecap: round; opacity: 0; filter: drop-shadow(0 0 2px #fff7); stroke-dasharray: 14 72; animation: wisp-flow 2.9s ease-in-out infinite; }
+    .wind-whisps path:nth-child(2) { animation-delay: .9s; stroke-width: 1.5; }
+    .wind-whisps path:nth-child(3) { animation-delay: 1.8s; stroke-width: 1.3; }
+    .stench-cloud { position: absolute; z-index: 5; inset: -12.5%; pointer-events: none; overflow: hidden; }
+    .stench-cloud .fog-bed { position: absolute; inset: 28% 17% 30%; border-radius: 50%; background: #55c72c88; filter: blur(13px); animation: fog-breathe 4.6s ease-in-out infinite alternate; }
+    .stench-puff { position: absolute; left: var(--px); top: var(--py); width: var(--size); height: var(--size); border-radius: 46% 54% 61% 39% / 55% 42% 58% 45%; background: #70d83a; opacity: 0; filter: blur(var(--blur)) drop-shadow(0 0 4px #55c72c); animation: fog-drift var(--duration) ease-in-out var(--delay) infinite; }
     .arrow-shot { position: absolute; z-index: 9; inset: 46% 8%; height: 3px; background: #e7d2a1; transform-origin: left; animation: shoot .38s ease-in forwards; }
 
-    .side { display: grid; gap: 12px; }
+    .side { display: grid; align-self: start; gap: 12px; min-width: 0; }
     .card { padding: 13px; border: 1px solid #3f4442; border-radius: 7px; background: #111517e8; box-shadow: 0 12px 34px #0007; }
-    .card h2 { margin: 0 0 9px; color: var(--gold); font: 700 .78rem system-ui; letter-spacing: .16em; text-transform: uppercase; }
+    .card h2 { margin: 0 0 9px; color: #efc15e; font: 700 1.18rem/1.05 "UnifrakturCook", "DejaVu Serif", Georgia, serif; letter-spacing: .06em; text-shadow: 1px 2px 0 #160c06; }
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; font: .9rem system-ui; }
     .stat { padding: 8px; background: #080a0b; border-radius: 4px; }
     .stat strong { display: block; color: white; font-size: 1.1rem; }
     #message { min-height: 3.1em; margin: 0; color: #fff1cb; }
 
     .percepts { display: flex; flex-wrap: wrap; gap: 6px; min-height: 27px; }
-    .percept { padding: 4px 8px; border: 1px solid #615b49; border-radius: 99px; background: #24231d; font: 700 .72rem system-ui; text-transform: uppercase; letter-spacing: .05em; }
+    .percept { padding: 4px 8px; border: 1px solid #80643d; border-radius: 4px; background: linear-gradient(#3a2614, #1d130b); font: 700 .95rem/1 "UnifrakturCook", "DejaVu Serif", Georgia, serif; text-transform: uppercase; letter-spacing: .04em; }
     .percept.danger { color: #ffb5aa; border-color: #883d35; }
     .percept.good { color: #ffe07c; border-color: #856f2b; }
 
-    .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
-    .action { min-height: 44px; font: 700 .8rem system-ui; }
-    .action small { display: block; color: var(--muted); font-weight: 400; }
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .action { min-height: 44px; font: 700 1rem/1 "UnifrakturCook", "DejaVu Serif", Georgia, serif; }
+    .action small { display: block; margin-top: 3px; color: var(--muted); font: .78rem/1.1 Georgia, "Times New Roman", serif; }
+    .action.bow, .action.context { grid-column: 1 / -1; }
+    .action kbd { margin-left: 6px; }
     .action:disabled { opacity: .4; cursor: not-allowed; }
 
-    #log { margin: 0; padding-left: 20px; max-height: 150px; overflow: auto; color: var(--muted); font: .78rem/1.5 system-ui; }
     .help { color: var(--muted); font: .75rem/1.45 system-ui; }
     .help kbd { padding: 1px 5px; color: white; background: #050606; border: 1px solid #555; border-radius: 3px; }
 
@@ -223,10 +370,23 @@
     @keyframes bump { 50% { translate: -8px 0; filter: drop-shadow(0 0 8px #ff3b24); } }
     @keyframes shoot { to { transform: translateX(110%); opacity: 0; } }
     @keyframes die { to { transform: rotate(90deg) translateY(20%); opacity: .72; } }
+    @keyframes flame-lick {
+      0%, 100% { transform: scaleY(.62) rotate(-4deg); opacity: .78; }
+      28% { transform: scaleY(1.06) rotate(3deg); opacity: 1; }
+      58% { transform: scaleY(.76) rotate(-2deg); opacity: .88; }
+    }
     @keyframes gold-twinkle {
       0%, 100% { filter: drop-shadow(0 0 10px #ffc52ddd) brightness(1); }
       45% { filter: drop-shadow(0 0 18px #fff3aaff) brightness(1.65); }
     }
+    @keyframes wisp-flow {
+      0% { opacity: 0; stroke-dashoffset: 86; transform: translate(0, 7px); }
+      20% { opacity: .42; }
+      74% { opacity: .32; }
+      100% { opacity: 0; stroke-dashoffset: -72; transform: translate(0, -9px); }
+    }
+    @keyframes fog-breathe { from { opacity: .55; transform: scale(.9); } to { opacity: .9; transform: scale(1.12); } }
+    @keyframes fog-drift { 0% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.35) rotate(0deg); } 22% { opacity: var(--peak); } 72% { opacity: calc(var(--peak) * .82); transform: translate(var(--ex), var(--ey)) scale(1.12) rotate(var(--turn)); } 100% { opacity: 0; transform: translate(var(--fx), var(--fy)) scale(1.35) rotate(var(--turn)); } }
 
     @media (max-width: 850px) {
       main { grid-template-columns: 1fr; }
@@ -234,7 +394,12 @@
       .side .wide { grid-column: 1 / -1; }
     }
     @media (max-width: 520px) {
-      header { align-items: start; }
+      header.fire-scene { min-height: 150px; }
+      .title-platform { width: 100%; height: 108px; margin-bottom: 4px; }
+      .title-platform::before { inset: 42px 0 0; }
+      .title-platform h1 { top: 67px; font-size: clamp(1.62rem, 7vw, 2.4rem); }
+      .platform-sigil { top: 57px; font-size: 1rem; }
+      .platform-rivet { top: 72px; width: 7px; height: 7px; }
       .build { white-space: normal; text-align: right; }
       .side { grid-template-columns: 1fr; }
       .side .wide { grid-column: auto; }
@@ -247,22 +412,33 @@
 </head>
 <body>
   <div class="shell">
-    <header>
-      <div><div class="kicker">A game for intelligent agents</div><h1>Hunt the Wumpus</h1></div>
-      <div class="build">browser-port / pre-Β 0.1</div>
+    <header class="fire-scene">
+      <div class="lava-field" aria-hidden="true">
+        <i class="fire-lick"></i><i class="fire-lick"></i><i class="fire-lick"></i><i class="fire-lick"></i>
+        <i class="fire-lick"></i><i class="fire-lick"></i><i class="fire-lick"></i><i class="fire-lick"></i>
+        <i class="fire-lick"></i><i class="fire-lick"></i><i class="fire-lick"></i><i class="fire-lick"></i>
+      </div>
+      <div class="title-platform">
+        <span class="platform-sigil left" aria-hidden="true">✣</span>
+        <span class="platform-sigil right" aria-hidden="true">✣</span>
+        <span class="platform-rivet left" aria-hidden="true"></span>
+        <span class="platform-rivet right" aria-hidden="true"></span>
+        <h1>Hunt the Wumpus</h1>
+      </div>
     </header>
 
-    <form class="config" id="config">
-      <label>Dimension <input id="dimension" type="number" min="3" max="8" value="4"></label>
-      <label>Arrows <input id="arrows" type="number" min="0" max="9" value="1"></label>
-      <label>Walls % <input id="bumpers" type="number" min="0" max="35" value="0"></label>
-      <label>Seed <input id="seed" type="text" value="first-cut" spellcheck="false"></label>
-      <label class="check"><input id="possible" type="checkbox" checked> guarantee safe gold path</label>
-      <button class="primary" type="submit">New cave</button>
-    </form>
-
     <main>
-      <section class="board-wrap" aria-label="Wumpus cave"><div id="board" role="grid"></div></section>
+      <div class="play-lane">
+        <section class="board-wrap" aria-label="Wumpus cave"><div id="board" role="grid"></div></section>
+        <form class="config" id="config">
+          <label>Dimension <input id="dimension" type="number" min="3" max="8" value="4"></label>
+          <label>Arrows <input id="arrows" type="number" min="0" max="9" value="1"></label>
+          <label>Pillars % <input id="bumpers" type="number" min="0" max="35" value="20"></label>
+          <label>Seed <input id="seed" type="text" value="first-cut" spellcheck="false"></label>
+          <label class="check"><input id="possible" type="checkbox" checked> guarantee safe gold path</label>
+          <button class="primary" type="submit">New cave</button>
+        </form>
+      </div>
       <aside class="side">
         <section class="card">
           <h2>Expedition</h2>
@@ -284,20 +460,12 @@
         <section class="card wide">
           <h2>Actions</h2>
           <div class="controls">
-            <button class="action" data-action="left">↶ Turn left<small>← / A</small></button>
-            <button class="action" data-action="forward">↑ Forward<small>↑ / W</small></button>
-            <button class="action" data-action="right">↷ Turn right<small>→ / D</small></button>
-            <button class="action" data-action="shoot">➶ Shoot<small>S / ⇧ Space</small></button>
-            <button class="action" data-action="grab">◆ Grab<small>G / Enter</small></button>
-            <button class="action" data-action="climb">⇧ Climb<small>C / Enter</small></button>
+            <button class="action" data-action="left">↶ Rotate</button>
+            <button class="action" data-action="forward">↑ Forward</button>
+            <button class="action" data-action="right">Rotate ↷</button>
+            <button class="action bow" id="pull-bow">Ready Bow with Shift Key <kbd>Shift</kbd></button>
+            <button class="action context" id="action-state" disabled>Action (N/A)</button>
           </div>
-        </section>
-        <section class="card wide">
-          <h2>Trail</h2>
-          <ol id="log"></ol>
-        </section>
-        <section class="card help wide">
-          Click an adjacent room to turn and step. Keyboard: <kbd>A</kbd>/<kbd>←</kbd> turn left, <kbd>W</kbd>/<kbd>↑</kbd> forward, <kbd>D</kbd>/<kbd>→</kbd> turn right, <kbd>S</kbd>/<kbd>⇧ Space</kbd> shoot, and <kbd>Enter</kbd> grab or climb contextually. <kbd>N</kbd> starts a new cave.
         </section>
       </aside>
     </main>
@@ -306,6 +474,7 @@
   <script>
   (() => {
     "use strict";
+    window.sayToCodex = message => console.log("TO CODEX:", message);
 
     const DIRS = ["up", "right", "down", "left"];
     const FACING_NAMES = { up: "NorthEast", right: "SouthEast", down: "SouthWest", left: "NorthWest" };
@@ -316,7 +485,7 @@
       score: document.querySelector("#score"), arrows: document.querySelector("#arrow-count"),
       facing: document.querySelector("#facing"), gold: document.querySelector("#gold-state"),
       percepts: document.querySelector("#percepts"), message: document.querySelector("#message"),
-      log: document.querySelector("#log")
+      log: null
     };
 
     let game;
@@ -324,14 +493,32 @@
     let heroFrame = 0;
     let heroFrameStep = 1;
     let shootingFrame = null;
+    let aimingShot = false;
+    const bowState = { held: false, source: null, pointerId: null };
     let walkingFrame = null;
     let walkingFrameStep = 1;
     let walkingStride = 1;
     let walkingFinishing = false;
     const goldCue = new Audio("assets/gold.mp3");
-    const deathCue = new Audio("assets/thou_art_dead.mp3");
+    const deathCue = new Audio("assets/dead.mp3");
+    const fallCue = new Audio("assets/fall.mp3");
+    const bumpCue = new Audio("assets/bump.mp3");
+    const startCue = new Audio("assets/start.mp3");
     const wumpusDeathCue = new Audio("assets/willhelm.mp3");
     const chingCue = new Audio("assets/warble-C.mp3");
+    const deadWumpusRoomCue = new Audio("assets/fart.mp3");
+    const mapCue = new Audio("assets/map.mp3");
+    mapCue.loop = false;
+    const fliesCue = new Audio("assets/flies.mp3");
+    const bowCue = new Audio("assets/bow.mp3");
+    const arrowCue = new Audio("assets/arrow.mp3");
+    fliesCue.loop = true;
+    fliesCue.volume = 0;
+    let fliesFadeTimer = null;
+    let fliesActive = false;
+    let deadWumpusRoomCuePlayed = false;
+    let mapFadeTimer = null;
+    let startFadeTimer = null;
 
     function hashSeed(text) {
       let h = 2166136261 >>> 0;
@@ -354,6 +541,14 @@
       const [dr, dc] = DELTA[direction];
       const r = row + dr, c = col + dc;
       return r < 0 || c < 0 || r >= n || c >= n ? -1 : r * n + c;
+    }
+
+    function pillarCovers(heroRoom, pillarRoom, n) {
+      const heroRow = Math.floor(heroRoom / n), heroCol = heroRoom % n;
+      const pillarRow = Math.floor(pillarRoom / n), pillarCol = pillarRoom % n;
+      return (pillarRow === heroRow + 1 && pillarCol === heroCol) ||
+        (pillarRow === heroRow && pillarCol === heroCol + 1) ||
+        (pillarRow === heroRow + 1 && pillarCol === heroCol + 1);
     }
 
     function safePathExists(cave) {
@@ -386,13 +581,27 @@
           if (rng() < config.bumpers / 100) blocked.add(i);
           else if (rng() < .20) pits.add(i);
         }
-        const cave = {n: config.n, entry, wumpus, gold, blocked, pits};
+        const cave = {n: config.n, entry, wumpus, gold, blocked, discoveredBlocked: new Set(), pits};
+        cave.map = null;
+        cave.floorVariants = [];
+        for (let y = 0; y < config.n; y++) for (let x = 0; x < config.n; x++) {
+          const used = new Set();
+          if (x > 0) used.add(cave.floorVariants[y * config.n + x - 1]);
+          if (y > 0) used.add(cave.floorVariants[(y - 1) * config.n + x]);
+          const choices = Array.from({length: 15}, (_, i) => i).filter(i => !used.has(i));
+          cave.floorVariants.push(choices[Math.floor(rng() * choices.length)]);
+        }
         if (!config.possible || safePathExists(cave)) return cave;
       }
       throw new Error("Could not generate a safe cave. Try fewer walls or a new seed.");
     }
 
-    function newGame() {
+    function newGame(playStart = false) {
+      if (playStart) startIntroMusic();
+      if (mapFadeTimer) clearInterval(mapFadeTimer);
+      mapCue.pause(); mapCue.currentTime = 0; mapCue.volume = 1;
+      if (fliesFadeTimer) clearInterval(fliesFadeTimer);
+      fliesCue.pause(); fliesCue.currentTime = 0; fliesCue.volume = 0; fliesActive = false;
       const config = {
         n: Math.max(3, Math.min(8, +document.querySelector("#dimension").value || 4)),
         arrows: Math.max(0, Math.min(9, +document.querySelector("#arrows").value || 0)),
@@ -404,7 +613,7 @@
         const cave = generateCave(config);
         game = {
           config, cave, position: cave.entry, facing: "right", arrows: config.arrows,
-          score: 0, gold: false, wumpusAlive: true, alive: true, ended: false,
+          score: 0, gold: false, map: false, wumpusAlive: true, alive: true, ended: false,
           visited: new Set([cave.entry]), transient: new Set(), trail: ["Entered the cave."],
           message: "You enter the cave."
         };
@@ -428,6 +637,11 @@
       return result;
     }
 
+    function roomHasStench(index) {
+      if (!game.wumpusAlive) return false;
+      return DIRS.some(direction => neighbor(index, direction, game.cave.n) === game.cave.wumpus);
+    }
+
     function note(text) {
       game.message = text;
       game.trail.unshift(text);
@@ -440,9 +654,10 @@
       note(`Facing ${FACING_NAMES[game.facing]}.`);
     }
 
-    function act(action, { viaEnter = false } = {}) {
-      if (!game || game.ended || locked || game.moveVisual) return;
+    function act(action, { viaEnter = false, continueShot = false } = {}) {
+      if (!game || game.ended || locked || game.moveVisual) return false;
       locked = true;
+      let shotFired = false;
       game.transient = new Set();
       game.score -= 1;
 
@@ -451,21 +666,37 @@
       if (action === "forward") {
         const next = neighbor(game.position, game.facing, game.cave.n);
         if (next < 0 || game.cave.blocked.has(next)) {
+          if (next >= 0) game.cave.discoveredBlocked.add(next);
+          bumpCue.currentTime = 0; bumpCue.volume = 0.25; bumpCue.play().catch(() => {});
           game.transient.add("bump"); note("Bump! Cold stone blocks the way.");
         } else {
+          const origin = game.position;
           const oldHero = document.querySelector(".agent");
           const oldRect = oldHero && oldHero.getBoundingClientRect();
           game.position = next; game.visited.add(next); note("Advanced into the next chamber.");
+          if (next === game.cave.wumpus && !game.wumpusAlive && !deadWumpusRoomCuePlayed) {
+            deadWumpusRoomCuePlayed = true;
+            setTimeout(() => {
+              deadWumpusRoomCue.currentTime = 0;
+              deadWumpusRoomCue.play().catch(() => {});
+            }, 825);
+          }
           if (["up", "right", "down", "left"].includes(game.facing)) {
             walkingFrame = 0;
             walkingFrameStep = 1;
             walkingStride = 1;
             walkingFinishing = false;
-            if (oldRect) game.moveVisual = { x: oldRect.left + oldRect.width / 2, y: oldRect.top + oldRect.height / 2 };
+            if (oldRect) game.moveVisual = { x: oldRect.left + oldRect.width / 2, y: oldRect.top + oldRect.height / 2, from: origin };
           } else walkingFrame = null;
           if (next === game.cave.gold && !game.gold) {
             goldCue.currentTime = 0;
             goldCue.play().catch(() => {});
+          }
+          const clearableRooms = Array.from({length: game.cave.n * game.cave.n}, (_, i) => i)
+            .filter(i => !game.cave.blocked.has(i) && !game.cave.pits.has(i));
+          if (!game.cave.map && clearableRooms.every(i => game.visited.has(i))) {
+            game.cave.map = next;
+            note("You have explored every safe chamber. A map is revealed here!");
           }
           if (game.cave.pits.has(next)) die("You fell into a bottomless pit.");
           else if (next === game.cave.wumpus && game.wumpusAlive) die("The Wumpus devoured you.");
@@ -478,12 +709,16 @@
             chingCue.currentTime = 0;
             chingCue.play().catch(() => {});
           }
+        } else if (game.position === game.cave.map && !game.map) {
+          game.map = true; game.score += 1500; note("You take the map. It is worth 150% of the gold!");
+          mapCue.volume = 1; mapCue.currentTime = 0; mapCue.play().catch(() => {});
         } else note("There is nothing here to grab.");
       }
       if (action === "shoot") {
         if (game.arrows < 1) note("The quiver is empty.");
         else {
-          shootingFrame = 0;
+          if (!continueShot) shootingFrame = 0;
+          shotFired = true;
           game.arrows--; game.score -= 10;
           let arrow = game.position, hit = false;
           while (true) {
@@ -503,17 +738,38 @@
         else {
           game.ended = true;
           note(game.gold ? `You escape with the gold. Final score: ${game.score}.` : `You leave the cave alive, but without the gold. Final score: ${game.score}.`);
+          if (game.map && !mapCue.paused) {
+            const started = performance.now(), initialVolume = mapCue.volume;
+            mapFadeTimer = setInterval(() => {
+              const fraction = Math.min(1, (performance.now() - started) / 900);
+              mapCue.volume = initialVolume * (1 - fraction);
+              if (fraction >= 1) { clearInterval(mapFadeTimer); mapFadeTimer = null; mapCue.pause(); }
+            }, 40);
+          }
         }
       }
 
       render();
       setTimeout(() => { locked = false; }, 150);
+      return action === "shoot" ? shotFired : true;
     }
 
     function die(reason) {
       game.alive = false; game.ended = true; game.score -= 1000; note(`${reason} Final score: ${game.score}.`);
-      deathCue.currentTime = 0;
-      deathCue.play().catch(() => {});
+      if (!mapCue.paused) {
+        if (mapFadeTimer) clearInterval(mapFadeTimer);
+        const started = performance.now(), initialVolume = mapCue.volume;
+        mapFadeTimer = setInterval(() => {
+          const fraction = Math.min(1, (performance.now() - started) / 100);
+          mapCue.volume = initialVolume * (1 - fraction);
+          if (fraction >= 1) { clearInterval(mapFadeTimer); mapFadeTimer = null; mapCue.pause(); mapCue.currentTime = 0; mapCue.volume = 1; }
+        }, 10);
+      }
+      const fell = reason.includes("pit");
+      if (fell) { fallCue.currentTime = 0; fallCue.play().catch(() => {}); }
+      const playDeathSound = () => { deathCue.currentTime = 0; deathCue.play().catch(() => {}); };
+      if (fell) setTimeout(playDeathSound, 500);
+      else playDeathSound();
     }
 
     function moveToward(index) {
@@ -541,12 +797,27 @@
       else act("grab");
     }
 
+    function availableShiftAction() {
+      if (!game || !bowState.held || game.ended) return "N/A";
+      if ((game.position === game.cave.gold && !game.gold) || (game.position === game.cave.map && !game.map)) return "Pickup";
+      if (game.position === game.cave.entry) return "Climb";
+      return "Shoot";
+    }
+    function updateActionState() {
+      const button = document.querySelector("#action-state");
+      if (!button) return;
+      const action = availableShiftAction();
+      button.textContent = `Action (${action})`;
+      button.disabled = action === "N/A";
+    }
+
     function render() {
       const {cave} = game;
       board.style.gridTemplateColumns = `repeat(${cave.n * 2}, calc(var(--tile-w) / 2))`;
       board.style.gridTemplateRows = `repeat(${cave.n * 2}, calc(var(--tile-h) / 2))`;
       board.replaceChildren();
-      const reveal = game.ended;
+      const reveal = game.ended || game.map;
+      const breezeHere = percepts().has("breeze");
       for (let i = 0; i < cave.n * cave.n; i++) {
         const row = Math.floor(i / cave.n), col = i % cave.n;
         const cell = document.createElement("button");
@@ -555,25 +826,51 @@
         cell.style.gridColumn = `${col - row + cave.n} / span 2`;
         cell.style.gridRow = `${row + col + 1} / span 2`;
         cell.style.zIndex = String(row + col + 1);
+        if (game.moveVisual && i === game.position) {
+          cell.classList.add("hero-in-transit");
+        } else if (game.moveVisual && cave.blocked.has(i) &&
+          [game.moveVisual.from, game.position].some(heroRoom => pillarCovers(heroRoom, i, cave.n))) {
+          // Pillars in front of either end of the step retain their intentional occlusion.
+          cell.style.zIndex = "10001";
+        }
+        cell.style.setProperty("--floor-frame", cave.floorVariants[i]);
+        cell.style.setProperty("--floor-position", `${cave.floorVariants[i] / 14 * 100}%`);
         cell.setAttribute("role", "gridcell");
         const seen = reveal || game.visited.has(i);
         if (seen) cell.classList.add("seen");
-        if (cave.blocked.has(i)) cell.classList.add("wall");
+        else cell.classList.add("unvisited");
+        if (cave.blocked.has(i)) {
+          cell.classList.add("wall");
+          if (cave.discoveredBlocked.has(i)) cell.classList.add("discovered");
+        }
+        if (cave.blocked.has(i) && (cave.discoveredBlocked.has(i) || game.map)) {
+          cell.append(pillarCube());
+        }
         if (i === cave.entry) cell.classList.add("entry");
         cell.setAttribute("aria-label", cave.blocked.has(i) ? `Wall at room ${i + 1}` : `${seen ? "Explored" : "Unknown"} room ${i + 1}`);
         board.append(cell);
 
         if (seen && !cave.blocked.has(i)) {
+          if (i === game.position && game.alive && !game.ended && roomHasStench(i)) cell.append(stenchCloud());
           if (i === cave.entry) {
             const stairs = entity("stairs");
             const img = new Image(); img.src = "assets/floor.p01.c03_03.rt.gif"; img.alt = "";
             stairs.append(img); cell.append(stairs);
           }
-          if (cave.pits.has(i)) cell.append(entity("pit"));
+          if (cave.pits.has(i)) {
+            const pit = entity("pit");
+            const img = new Image(); img.src = "assets/floor2.p01.c03_03.rt.gif"; img.alt = "Pit";
+            pit.append(img, windWhisps()); cell.append(pit);
+          }
           if (i === cave.gold && !game.gold) {
             const gold = entity("gold");
             const img = new Image(); img.src = "assets/items.gold-bag.rt.png"; img.alt = "Gold bag";
             gold.append(img); cell.append(gold);
+          }
+          if (i === cave.map && !game.map) {
+            const map = entity("artifact");
+            const img = new Image(); img.src = "assets/items.map.rt.png"; img.alt = "Map";
+            map.append(img); cell.append(map);
           }
           if (i === cave.wumpus) {
             if (game.wumpusAlive) cell.classList.add("has-monster");
@@ -583,6 +880,7 @@
             img.alt = ""; w.append(img); cell.append(w);
           }
         }
+        if (i === game.position && breezeHere && game.alive && !game.ended) cell.append(windWhisps());
         if (i === game.position && game.alive && !game.ended) {
           cell.classList.add("has-agent");
           const agent = entity(`agent ${game.facing}`);
@@ -621,7 +919,9 @@
           sprite.style.backgroundPosition = `${frame * 100}% 0`;
           agent.append(sprite); cell.append(agent);
         }
-        const fog = document.createElement("span"); fog.className = "fog"; cell.append(fog);
+        const fog = document.createElement("span"); fog.className = "fog";
+        fog.style.backgroundPosition = `${Math.floor(Math.random() * 5) * 25}% center`;
+        cell.append(fog);
         if (!cave.blocked.has(i)) cell.addEventListener("click", () => moveToward(i));
       }
 
@@ -631,17 +931,104 @@
       ui.gold.textContent = game.gold ? "Yes" : "No";
       ui.message.textContent = game.message;
       ui.percepts.replaceChildren();
+      updateActionState();
       const currentPercepts = percepts();
+      const stenchActive = currentPercepts.has("stench") && game.alive && !game.ended;
+      if (stenchActive && !fliesActive) {
+        fliesActive = true;
+        if (fliesFadeTimer) clearInterval(fliesFadeTimer);
+        fliesCue.volume = 0;
+        fliesCue.play().catch(() => {});
+        const started = performance.now();
+        fliesFadeTimer = setInterval(() => {
+          const t = Math.min(1, (performance.now() - started) / 1000);
+          fliesCue.volume = 0.6 * t;
+          if (t >= 1) { clearInterval(fliesFadeTimer); fliesFadeTimer = null; }
+        }, 30);
+      } else if (!stenchActive && fliesActive) {
+        fliesActive = false;
+        if (fliesFadeTimer) clearInterval(fliesFadeTimer);
+        const startingVolume = fliesCue.volume;
+        const started = performance.now();
+        fliesFadeTimer = setInterval(() => {
+          const t = Math.min(1, (performance.now() - started) / 1000);
+          fliesCue.volume = startingVolume * (1 - t);
+          if (t >= 1) {
+            clearInterval(fliesFadeTimer); fliesFadeTimer = null;
+            fliesCue.pause(); fliesCue.currentTime = 0;
+          }
+        }, 30);
+      }
       if (!currentPercepts.size) ui.percepts.append(chip("Nothing unusual", ""));
       for (const p of ["breeze", "stench", "glitter", "bump", "scream"]) {
         if (currentPercepts.has(p)) ui.percepts.append(chip(p, p === "glitter" ? "good" : "danger"));
       }
-      ui.log.replaceChildren(...game.trail.map(item => { const li = document.createElement("li"); li.textContent = item; return li; }));
       document.querySelectorAll("[data-action]").forEach(button => button.disabled = game.ended);
     }
 
     function entity(className, text = "") {
       const span = document.createElement("span"); span.className = `entity ${className}`; span.textContent = text; return span;
+    }
+
+    function pillarCube() {
+      const cube = entity("pillars");
+      cube.setAttribute("aria-hidden", "true");
+      for (const direction of ["", "cw", "ccw"]) {
+        const grout = document.createElement("span");
+        grout.className = `pillar-grout${direction ? ` ${direction}` : ""}`;
+        cube.append(grout);
+      }
+      const left = document.createElement("span");
+      left.className = "pillar-panel left";
+      cube.append(left);
+      const right = document.createElement("span");
+      right.className = "pillar-panel right";
+      cube.append(right);
+      const roof = document.createElement("img");
+      roof.className = "pillar-roof";
+      roof.src = "assets/floor.p01.c01_02.rt.png";
+      roof.alt = "";
+      cube.append(roof);
+      return cube;
+    }
+
+    function windWhisps() {
+      const layer = document.createElement("span");
+      layer.className = "wind-whisps";
+      layer.setAttribute("aria-hidden", "true");
+      layer.innerHTML = '<svg viewBox="0 0 160 132" preserveAspectRatio="none"><path d="M68 132 C20 108 136 92 63 72 S45 35 100 0"/><path d="M92 132 C145 108 31 90 103 66 S128 32 60 0"/><path d="M56 132 C112 108 29 92 95 74 S34 35 108 0"/></svg>';
+      return layer;
+    }
+
+    function stenchCloud() {
+      const layer = document.createElement("span");
+      layer.className = "stench-cloud";
+      layer.setAttribute("aria-hidden", "true");
+      layer.innerHTML = '<span class="fog-bed"></span>';
+      const shapes = ["48% 52% 64% 36% / 56% 39% 61% 44%", "61% 39% 45% 55% / 42% 62% 38% 58%", "39% 61% 57% 43% / 63% 45% 55% 37%", "54% 46% 36% 64% / 48% 58% 42% 52%"];
+      for (let i = 0; i < 13; i++) {
+        const puff = document.createElement("i");
+        puff.className = "stench-puff";
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 18 + Math.random() * 15;
+        puff.style.setProperty("--px", `${31 + Math.random() * 38}%`);
+        puff.style.setProperty("--py", `${31 + Math.random() * 38}%`);
+        puff.style.setProperty("--size", `${14 + Math.random() * 18}%`);
+        puff.style.setProperty("--blur", `${4 + Math.random() * 8}px`);
+        puff.style.setProperty("--sx", `${Math.cos(angle) * radius}%`);
+        puff.style.setProperty("--sy", `${Math.sin(angle) * radius}%`);
+        puff.style.setProperty("--ex", `${(Math.random() - .5) * 30}%`);
+        puff.style.setProperty("--ey", `${(Math.random() - .5) * 25}%`);
+        puff.style.setProperty("--fx", `${(Math.random() - .5) * 45}%`);
+        puff.style.setProperty("--fy", `${-12 - Math.random() * 40}%`);
+        puff.style.setProperty("--turn", `${(Math.random() - .5) * 40}deg`);
+        puff.style.setProperty("--duration", `${3.4 + Math.random() * 3.5}s`);
+        puff.style.setProperty("--delay", `${-Math.random() * 6}s`);
+        puff.style.setProperty("--peak", `${.56 + Math.random() * .34}`);
+        puff.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)];
+        layer.append(puff);
+      }
+      return layer;
     }
 
     function scheduleGoldTwinkle() {
@@ -660,10 +1047,11 @@
       const span = document.createElement("span"); span.className = `percept ${className}`; span.textContent = text; return span;
     }
 
-    form.addEventListener("submit", event => { event.preventDefault(); newGame(); });
+    form.addEventListener("submit", event => { event.preventDefault(); newGame(true); });
     setInterval(() => {
       if (!game || !game.alive || game.ended) return;
       if (shootingFrame !== null) {
+        if (aimingShot && shootingFrame >= 2) return;
         if (shootingFrame < 5) shootingFrame++;
         else { shootingFrame = null; render(); return; }
         const sprite = document.querySelector(".agent .amazon-sprite");
@@ -697,17 +1085,108 @@
       const sprite = document.querySelector(".agent .amazon-sprite");
       if (sprite) sprite.style.backgroundPosition = `${heroFrame / 15 * 100}% 0`;
     }, 100);
-    document.querySelectorAll("[data-action]").forEach(button => button.addEventListener("click", () => act(button.dataset.action)));
+    document.querySelectorAll('[data-action]:not([data-action="context"])').forEach(button => button.addEventListener("click", () => act(button.dataset.action)));
+    const pullBow = document.querySelector("#pull-bow");
+    const actionButton = document.querySelector("#action-state");
+    function startBow(source, pointerId = null) {
+      bowState.held = true; bowState.source = source; bowState.pointerId = pointerId;
+      aimingShot = true; shootingFrame = 0;
+      bowCue.currentTime = 0; bowCue.play().catch(() => {});
+      render();
+    }
+    function relaxBow() {
+      bowState.held = false; bowState.source = null; bowState.pointerId = null;
+      if (aimingShot) { aimingShot = false; shootingFrame = null; }
+      bowCue.pause(); bowCue.currentTime = 0;
+      render();
+    }
+    pullBow.addEventListener("pointerdown", event => {
+      if (event.button !== 0) return;
+      event.preventDefault(); startBow("sidebar", event.pointerId);
+    });
+    addEventListener("pointermove", event => {
+      if (!bowState.held || bowState.source !== "sidebar" || event.pointerId !== bowState.pointerId) return;
+      const a = pullBow.getBoundingClientRect(), b = actionButton.getBoundingClientRect();
+      const pad = 3; // includes the small band between the two buttons
+      const inside = event.clientX >= Math.min(a.left, b.left) - pad && event.clientX <= Math.max(a.right, b.right) + pad &&
+        event.clientY >= Math.min(a.top, b.top) - pad && event.clientY <= Math.max(a.bottom, b.bottom) + pad;
+      if (!inside) relaxBow();
+    });
+    pullBow.addEventListener("pointercancel", relaxBow);
+    function performSidebarAction() {
+      const action = availableShiftAction();
+      if (action === "Pickup") act("grab", { viaEnter: true });
+      else if (action === "Climb") act("climb");
+      else if (action === "Shoot") {
+        aimingShot = false; shootingFrame = 2;
+        bowState.held = false; bowState.source = null; bowState.pointerId = null;
+        bowCue.pause(); bowCue.currentTime = 0;
+        if (act("shoot", { continueShot: true })) {
+          arrowCue.currentTime = 0; arrowCue.play().catch(() => {});
+        } else { shootingFrame = null; render(); }
+      }
+    }
+    let skipActionClick = false;
+    actionButton.addEventListener("pointerup", event => {
+      if (bowState.source !== "sidebar") return;
+      event.preventDefault();
+      skipActionClick = true;
+      performSidebarAction();
+    });
+    actionButton.addEventListener("click", () => {
+      if (skipActionClick) { skipActionClick = false; return; }
+      performSidebarAction();
+    });
     addEventListener("keydown", event => {
       if (event.target.matches("input, select, textarea")) return;
+      if (event.key === "Shift" && !event.repeat) {
+        if (!bowState.held) startBow("keyboard");
+      }
       const keymap = {ArrowLeft:"left", a:"left", ArrowRight:"right", d:"right", ArrowUp:"forward", w:"forward", s:"shoot", g:"grab", c:"climb"};
-      if (event.key.toLowerCase() === "n") { newGame(); return; }
-      if (event.key === "Enter") { event.preventDefault(); contextualAction(); return; }
-      if (event.code === "Space" && event.shiftKey) { event.preventDefault(); act("shoot"); return; }
+      if (event.key.toLowerCase() === "n") { newGame(true); return; }
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (bowState.held) performSidebarAction();
+        else contextualAction();
+        return;
+      }
+      if (event.code === "Space" && event.shiftKey) {
+        event.preventDefault(); aimingShot = false; shootingFrame = 2;
+        bowState.held = false; bowState.source = null; bowState.pointerId = null;
+        bowCue.pause(); bowCue.currentTime = 0;
+        if (act("shoot", { continueShot: true })) {
+          arrowCue.currentTime = 0; arrowCue.play().catch(() => {});
+        } else { shootingFrame = null; render(); }
+        return;
+      }
       const action = keymap[event.key] || keymap[event.key.toLowerCase()];
       if (action) { event.preventDefault(); act(action); }
     });
+    addEventListener("keyup", event => {
+      if (event.key === "Shift") {
+        if (bowState.source !== "keyboard") return;
+        bowState.held = false; bowState.source = null; bowState.pointerId = null;
+        bowCue.pause(); bowCue.currentTime = 0;
+        if (aimingShot) { aimingShot = false; shootingFrame = null; render(); }
+      }
+    });
 
+    function startIntroMusic() {
+      if (!startCue.paused) return;
+      startCue.currentTime = 0; startCue.volume = 0;
+      startCue.play().then(() => {
+        const started = performance.now();
+        if (startFadeTimer) clearInterval(startFadeTimer);
+        startFadeTimer = setInterval(() => {
+          const fraction = Math.min(1, (performance.now() - started) / 250);
+          startCue.volume = fraction;
+          if (fraction >= 1) { clearInterval(startFadeTimer); startFadeTimer = null; }
+        }, 20);
+      }).catch(() => {
+        addEventListener("pointerdown", startIntroMusic, { once: true });
+        addEventListener("keydown", startIntroMusic, { once: true });
+      });
+    }
     scheduleGoldTwinkle();
     newGame();
   })();
