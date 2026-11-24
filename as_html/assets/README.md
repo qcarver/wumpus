@@ -1,6 +1,6 @@
 # Character-sheet and runtime-asset convention
 
-The page also bundles `unifrakturcook-latin.woff2` for its woodcut-style headings. It is self-hosted so the page keeps its typography when opened from disk or served from a static host. `UNIFRAKTURCOOK-OFL.txt` contains the font's SIL Open Font License.
+The page bundles `unifrakturcook-latin.woff2` for its woodcut-style title and section headings, plus `alegreya-latin.woff2` for the more legible calligraphic interface text. Both are self-hosted so the page keeps its typography when opened from disk or served from a static host. `UNIFRAKTURCOOK-OFL.txt` and `ALEGREYA-OFL.txt` contain their SIL Open Font Licenses.
 
 This directory deliberately contains two kinds of graphics:
 

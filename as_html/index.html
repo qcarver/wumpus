@@ -12,6 +12,13 @@
       font-weight: 700;
       font-display: swap;
     }
+    @font-face {
+      font-family: "Alegreya";
+      src: url("assets/alegreya-latin.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+    }
 
     :root {
       color-scheme: dark;
@@ -35,7 +42,7 @@
       background:
         radial-gradient(circle at 50% -10%, #313a37 0, transparent 42%),
         linear-gradient(145deg, #111619, #060708 72%);
-      font: 16px/1.4 Georgia, "Times New Roman", serif;
+      font: 16px/1.4 "Alegreya", Georgia, "Times New Roman", serif;
     }
 
     button, input, select { font: inherit; }
@@ -175,8 +182,8 @@
     }
     .platform-sigil.left { left: 12%; }
     .platform-sigil.right { right: 12%; }
-    .kicker { color: var(--gold); text-transform: uppercase; letter-spacing: .1em; font: 700 .9rem/1 "UnifrakturCook", "DejaVu Serif", Georgia, serif; }
-    .build { color: var(--muted); font: .9rem/1.1 "UnifrakturCook", "DejaVu Serif", Georgia, serif; white-space: nowrap; }
+    .kicker { color: var(--gold); text-transform: uppercase; letter-spacing: .1em; font: 700 .9rem/1 "Alegreya", Georgia, serif; }
+    .build { color: var(--muted); font: .9rem/1.1 "Alegreya", Georgia, serif; white-space: nowrap; }
 
     .config {
       display: flex;
@@ -188,20 +195,20 @@
       background: #0f1214cc;
       border: 1px solid #34393a;
       border-radius: 8px;
-      font: 1rem/1.15 "UnifrakturCook", "DejaVu Serif", Georgia, serif;
+      font: 1rem/1.15 "Alegreya", Georgia, serif;
     }
     .config label { display: grid; gap: 4px; color: var(--muted); }
     .config label.check { display: flex; align-items: center; gap: 7px; padding-bottom: 7px; }
     .config input[type="number"], .config input[type="text"] {
       width: 86px; padding: 7px; color: white; background: #080a0b; border: 1px solid #806a45; border-radius: 4px;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: "Alegreya", Georgia, "Times New Roman", serif;
     }
     .primary, .action {
       border: 1px solid #665d44;
       border-radius: 5px;
       padding: 8px 12px;
       background: linear-gradient(#68491f, #24140a);
-      font-family: "UnifrakturCook", "DejaVu Serif", Georgia, serif;
+      font-family: "Alegreya", Georgia, serif;
       font-weight: 700;
       cursor: pointer;
     }
@@ -346,24 +353,24 @@
     .side { display: grid; align-self: start; gap: 12px; min-width: 0; }
     .card { padding: 13px; border: 1px solid #3f4442; border-radius: 7px; background: #111517e8; box-shadow: 0 12px 34px #0007; }
     .card h2 { margin: 0 0 9px; color: #efc15e; font: 700 1.18rem/1.05 "UnifrakturCook", "DejaVu Serif", Georgia, serif; letter-spacing: .06em; text-shadow: 1px 2px 0 #160c06; }
-    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; font: .9rem system-ui; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; font: .9rem "Alegreya", Georgia, serif; }
     .stat { padding: 8px; background: #080a0b; border-radius: 4px; }
     .stat strong { display: block; color: white; font-size: 1.1rem; }
     #message { min-height: 3.1em; margin: 0; color: #fff1cb; }
 
     .percepts { display: flex; flex-wrap: wrap; gap: 6px; min-height: 27px; }
-    .percept { padding: 4px 8px; border: 1px solid #80643d; border-radius: 4px; background: linear-gradient(#3a2614, #1d130b); font: 700 .95rem/1 "UnifrakturCook", "DejaVu Serif", Georgia, serif; text-transform: uppercase; letter-spacing: .04em; }
+    .percept { padding: 4px 8px; border: 1px solid #80643d; border-radius: 4px; background: linear-gradient(#3a2614, #1d130b); font: 700 .95rem/1 "Alegreya", Georgia, serif; text-transform: uppercase; letter-spacing: .04em; }
     .percept.danger { color: #ffb5aa; border-color: #883d35; }
     .percept.good { color: #ffe07c; border-color: #856f2b; }
 
     .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
-    .action { min-height: 44px; font: 700 1rem/1 "UnifrakturCook", "DejaVu Serif", Georgia, serif; }
-    .action small { display: block; margin-top: 3px; color: var(--muted); font: .78rem/1.1 Georgia, "Times New Roman", serif; }
+    .action { min-height: 44px; font: 700 1rem/1 "Alegreya", Georgia, serif; }
+    .action small { display: block; margin-top: 3px; color: var(--muted); font: .9rem/1.1 "Alegreya", Georgia, serif; }
     .action.bow, .action.context { grid-column: 1 / -1; }
     .action kbd { margin-left: 6px; }
     .action:disabled { opacity: .4; cursor: not-allowed; }
 
-    .help { color: var(--muted); font: .75rem/1.45 system-ui; }
+    .help { color: var(--muted); font: .875rem/1.45 "Alegreya", Georgia, serif; }
     .help kbd { padding: 1px 5px; color: white; background: #050606; border: 1px solid #555; border-radius: 3px; }
 
     @keyframes breathe { 50% { translate: 0 -2px; } }
