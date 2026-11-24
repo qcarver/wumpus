@@ -380,8 +380,38 @@
     .percept.danger { color: #ffb5aa; border-color: #883d35; }
     .percept.good { color: #ffe07c; border-color: #856f2b; }
 
-    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 7px; }
     .action { min-height: 44px; font: 700 1rem/1 "Alegreya", Georgia, serif; }
+    .action.forward {
+      position: relative;
+      width: 64px;
+      min-height: 58px;
+      justify-self: center;
+      padding: 0 7px;
+      color: #191919;
+      border: 3px solid #a9aaac;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 38% 27%, #fff 0 12%, transparent 13%),
+        radial-gradient(ellipse at 42% 33%, #fff 0, #f8f8f5 43%, #dadbdd 70%, #a9aaac 100%);
+      box-shadow:
+        0 6px 0 #6d6f72,
+        0 9px 11px #000b,
+        inset 0 2px 3px #fff;
+      text-transform: uppercase;
+      letter-spacing: .035em;
+      transform: translateY(-3px);
+      transform-origin: center bottom;
+    }
+    .action.forward:hover {
+      color: #090909;
+      border-color: #d7d8da;
+      background:
+        radial-gradient(circle at 38% 27%, #fff 0 12%, transparent 13%),
+        radial-gradient(ellipse at 42% 33%, #fff 0, #fff 43%, #e5e6e7 70%, #b5b6b8 100%);
+    }
+    .action.forward:active { transform: translateY(3px); box-shadow: 0 1px 0 #66686a, 0 3px 5px #0009, inset 0 2px 4px #bbb; }
+    .action.forward.control-press { animation: arcade-button-press .3s ease-in-out; }
     .action small { display: block; margin-top: 3px; color: var(--muted); font: .9rem/1.1 "Alegreya", Georgia, serif; }
     .action.bow, .action.context { grid-column: 1 / -1; }
     .action kbd { margin-left: 6px; }
@@ -392,6 +422,10 @@
 
     @keyframes breathe { 50% { translate: 0 -2px; } }
     @keyframes bump { 50% { translate: -8px 0; filter: drop-shadow(0 0 8px #ff3b24); } }
+    @keyframes arcade-button-press {
+      0%, 100% { transform: translateY(-3px); box-shadow: 0 6px 0 #6d6f72, 0 9px 11px #000b, inset 0 2px 3px #fff; }
+      45%, 65% { transform: translateY(3px); box-shadow: 0 1px 0 #66686a, 0 3px 5px #0009, inset 0 2px 4px #bbb; }
+    }
     @keyframes shoot { to { transform: translateX(110%); opacity: 0; } }
     @keyframes die { to { transform: rotate(90deg) translateY(20%); opacity: .72; } }
     @keyframes flame-lick {
@@ -485,7 +519,7 @@
           <h2>Actions</h2>
           <div class="controls">
             <button class="action" data-action="left">↶ Rotate</button>
-            <button class="action" data-action="forward">↑ Forward</button>
+            <button class="action forward" data-action="forward">Forward</button>
             <button class="action" data-action="right">Rotate ↷</button>
             <button class="action bow" id="pull-bow">Ready Bow with Shift Key <kbd>Shift</kbd></button>
             <button class="action context" id="action-state" disabled>Action (N/A)</button>
@@ -696,8 +730,18 @@
       note(`Facing ${FACING_NAMES[game.facing]}.`);
     }
 
+    function animateControl(action) {
+      const button = document.querySelector(`[data-action="${action}"]`);
+      if (!button) return;
+      button.classList.remove("control-press");
+      void button.offsetWidth;
+      button.classList.add("control-press");
+      setTimeout(() => button.classList.remove("control-press"), 320);
+    }
+
     function act(action, { viaEnter = false, continueShot = false } = {}) {
       if (!game || game.ended || locked || game.moveVisual) return false;
+      animateControl(action);
       locked = true;
       let shotFired = false;
       game.transient = new Set();
