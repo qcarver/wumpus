@@ -520,6 +520,24 @@
     let mapFadeTimer = null;
     let startFadeTimer = null;
 
+    function developerConsoleIsOpen() {
+      const isFirefox = /firefox/i.test(navigator.userAgent);
+      const dockedToolsWidth = Math.max(0, window.outerWidth - window.innerWidth) > 160;
+      const dockedToolsHeight = Math.max(0, window.outerHeight - window.innerHeight) > 160;
+      return isFirefox && (dockedToolsWidth || dockedToolsHeight);
+    }
+
+    function seedForNewCave() {
+      const input = document.querySelector("#seed");
+      if (developerConsoleIsOpen()) return input.value.trim() || "wumpus";
+      const localWords = [...new Set(
+        document.documentElement.textContent.match(/\b[a-z][a-z0-9]*\b/g) || ["wumpus"]
+      )];
+      const seed = localWords[Math.floor(Math.random() * localWords.length)];
+      input.value = seed;
+      return seed;
+    }
+
     function hashSeed(text) {
       let h = 2166136261 >>> 0;
       for (const ch of text) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
@@ -607,7 +625,7 @@
         arrows: Math.max(0, Math.min(9, +document.querySelector("#arrows").value || 0)),
         bumpers: Math.max(0, Math.min(35, +document.querySelector("#bumpers").value || 0)),
         possible: document.querySelector("#possible").checked,
-        seed: document.querySelector("#seed").value.trim() || String(Date.now())
+        seed: seedForNewCave()
       };
       try {
         const cave = generateCave(config);
@@ -1126,6 +1144,14 @@
         } else { shootingFrame = null; render(); }
       }
     }
+    function performKeyboardShot() {
+      aimingShot = false; shootingFrame = 2;
+      bowState.held = false; bowState.source = null; bowState.pointerId = null;
+      bowCue.pause(); bowCue.currentTime = 0;
+      if (act("shoot", { continueShot: true })) {
+        arrowCue.currentTime = 0; arrowCue.play().catch(() => {});
+      } else { shootingFrame = null; render(); }
+    }
     let skipActionClick = false;
     actionButton.addEventListener("pointerup", event => {
       if (bowState.source !== "sidebar") return;
@@ -1146,17 +1172,13 @@
       if (event.key.toLowerCase() === "n") { newGame(true); return; }
       if (event.key === "Enter") {
         event.preventDefault();
-        if (bowState.held) performSidebarAction();
+        if (event.shiftKey) performKeyboardShot();
+        else if (bowState.held) performSidebarAction();
         else contextualAction();
         return;
       }
       if (event.code === "Space" && event.shiftKey) {
-        event.preventDefault(); aimingShot = false; shootingFrame = 2;
-        bowState.held = false; bowState.source = null; bowState.pointerId = null;
-        bowCue.pause(); bowCue.currentTime = 0;
-        if (act("shoot", { continueShot: true })) {
-          arrowCue.currentTime = 0; arrowCue.play().catch(() => {});
-        } else { shootingFrame = null; render(); }
+        event.preventDefault(); performKeyboardShot();
         return;
       }
       const action = keymap[event.key] || keymap[event.key.toLowerCase()];

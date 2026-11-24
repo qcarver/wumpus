@@ -31,5 +31,7 @@ The Amazon sheet catalog now records standing, walking, and shooting rows for th
 - Picking up the map reveals all rooms, pits, and hidden pillars. The map music fades on exit and fades over 100 ms if the player dies.
 - Falling plays `fall.mp3`, then `dead.mp3` begins 500 ms later. Other deaths play `dead.mp3` immediately.
 - `start.mp3` begins when a new cave places the Amazon at the entrance and fades in over 250 ms.
+- Normal play chooses a fresh lowercase alphanumeric word from the local Wumpus page source as its seed on page load and for every new cave. When the page is running in Firefox with docked DevTools open, the entered seed is retained for repeatable developer sessions.
+- Physical `Shift` + `Enter` always shoots. It overrides the contextual Pickup and Climb actions, including while the Amazon is standing on the exit.
 
 The current browser build is still a first cut. The row 10 fog crops were adjusted by eye against the supplied screenshots; review their seams and alignment during the next play pass. This section records current behavior rather than a guarantee that every sound or crop has been play-tested.
