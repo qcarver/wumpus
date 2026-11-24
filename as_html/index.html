@@ -353,9 +353,26 @@
     .side { display: grid; align-self: start; gap: 12px; min-width: 0; }
     .card { padding: 13px; border: 1px solid #3f4442; border-radius: 7px; background: #111517e8; box-shadow: 0 12px 34px #0007; }
     .card h2 { margin: 0 0 9px; color: #efc15e; font: 700 1.18rem/1.05 "UnifrakturCook", "DejaVu Serif", Georgia, serif; letter-spacing: .06em; text-shadow: 1px 2px 0 #160c06; }
-    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; font: .9rem "Alegreya", Georgia, serif; }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      font-family: "Alegreya", Georgia, serif;
+      font-size: .9rem;
+      font-style: normal;
+      font-weight: 500;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
     .stat { padding: 8px; background: #080a0b; border-radius: 4px; }
-    .stat strong { display: block; color: white; font-size: 1.1rem; }
+    .stat strong {
+      display: block;
+      color: white;
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-style: inherit;
+      font-weight: 600;
+      font-variant-numeric: inherit;
+    }
     #message { min-height: 3.1em; margin: 0; color: #fff1cb; }
 
     .percepts { display: flex; flex-wrap: wrap; gap: 6px; min-height: 27px; }
